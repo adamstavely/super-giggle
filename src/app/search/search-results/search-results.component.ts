@@ -31,6 +31,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   currentPage = 1;
   pageSize = 25;
   showFilters = true; // Show filters by default on desktop
+  showAdvancedSearch = false;
   selectedTab: ContentType = 'all';
   selectedTabIndex = 0;
   groupBySource = false;
@@ -201,6 +202,43 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
 
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
+  }
+
+  openAdvancedSearch(): void {
+    this.showAdvancedSearch = true;
+  }
+
+  closeAdvancedSearch(): void {
+    this.showAdvancedSearch = false;
+  }
+
+  onAdvancedSearch(event: { query: string; filters: SearchFilters }): void {
+    this.currentQuery = event.query;
+    this.currentPage = 1;
+    
+    // Update route with query and filters
+    const queryParams: any = {
+      q: event.query
+    };
+    
+    if (event.filters.fileFormats && event.filters.fileFormats.length > 0) {
+      queryParams.fileFormats = event.filters.fileFormats.join(',');
+    }
+    
+    if (event.filters.contentTypes && event.filters.contentTypes.length > 0) {
+      queryParams.contentTypes = event.filters.contentTypes.join(',');
+    }
+    
+    if (event.filters.dateFrom) {
+      queryParams.dateFrom = event.filters.dateFrom.toISOString();
+    }
+    
+    if (event.filters.dateTo) {
+      queryParams.dateTo = event.filters.dateTo.toISOString();
+    }
+    
+    this.router.navigate(['/search/results'], { queryParams });
+    this.performSearch();
   }
 
   performSearch(): void {

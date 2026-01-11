@@ -406,7 +406,7 @@
     margin-top: 12px;
     text-align: right;
 
-    a {
+    button {
       color: #3b4b7d;
       text-decoration: none;
       font-size: 13px;
@@ -415,15 +415,23 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      padding: 0;
+      min-width: auto;
+      line-height: 1.5;
+
+      :host-context(.dark-theme) & {
+        color: #8a9eff;
+      }
 
       &:hover {
-        color: #2d3c6a;
         text-decoration: underline;
+        background: transparent;
       }
 
       &::after {
         content: '→';
         transition: transform 0.2s;
+        margin-left: 4px;
       }
 
       &:hover::after {

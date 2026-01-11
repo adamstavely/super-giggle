@@ -20,6 +20,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
 
   @Output() search = new EventEmitter<string>();
   @Output() queryChange = new EventEmitter<string>();
+  @Output() openAdvancedSearch = new EventEmitter<void>();
 
   @ViewChild('searchInput', { static: false }) searchInput!: ElementRef<HTMLInputElement>;
 

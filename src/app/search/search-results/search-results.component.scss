@@ -154,6 +154,9 @@
           display: inline-flex;
           align-items: center;
           gap: 4px;
+          padding: 0;
+          min-width: auto;
+          line-height: 1.5;
 
           :host-context(.dark-theme) & {
             color: #8a9eff;
@@ -161,11 +164,13 @@
 
           &:hover {
             text-decoration: underline;
+            background: transparent;
           }
 
           &::after {
             content: '→';
             transition: transform 0.2s;
+            margin-left: 4px;
           }
 
           &:hover::after {

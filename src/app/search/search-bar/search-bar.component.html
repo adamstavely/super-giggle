@@ -162,6 +162,6 @@
   </div>
 
   <div *ngIf="showAdvancedLink" class="advanced-search-link">
-    <a routerLink="/search/advanced" aria-label="Advanced search options">Advanced Search</a>
+    <button mat-button (click)="openAdvancedSearch.emit()" aria-label="Advanced search options">Advanced Search</button>
   </div>
 </div>

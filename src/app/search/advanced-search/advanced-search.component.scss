@@ -1,22 +1,115 @@
-.advanced-search-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px;
+.advanced-search-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  z-index: 1000;
+  pointer-events: none;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.open {
+    width: 100%;
+    pointer-events: all;
+  }
+
+  .advanced-search-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1;
+  }
+
+  .advanced-search-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 600px;
+    max-width: 90vw;
+    background: #ffffff;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    :host-context(.dark-theme) & {
+      background: #1a1d29;
+      border-left-color: #374151;
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  &.open .advanced-search-container {
+    transform: translateX(0);
+  }
 }
 
 .advanced-search-header {
-  margin-bottom: 32px;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  flex-shrink: 0;
+  background: #f9fafb;
 
-  h1 {
-    margin: 0 0 8px 0;
-    font-size: 2rem;
-    font-weight: 500;
+  :host-context(.dark-theme) & {
+    background: #111827;
+    border-bottom-color: #374151;
   }
 
-  .subtitle {
-    color: rgba(0, 0, 0, 0.6);
-    margin: 0;
+  .header-content {
+    flex: 1;
+
+    h2 {
+      margin: 0 0 4px 0;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #1a1d29;
+      letter-spacing: -0.01em;
+
+      :host-context(.dark-theme) & {
+        color: #e5e7eb;
+      }
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin: 0;
+      font-size: 0.875rem;
+
+      :host-context(.dark-theme) & {
+        color: #9ca3af;
+      }
+    }
+  }
+
+  .close-button {
+    color: #6b7280;
+    flex-shrink: 0;
+
+    :host-context(.dark-theme) & {
+      color: #9ca3af;
+    }
+
+    &:hover {
+      background-color: rgba(59, 75, 125, 0.08);
+      color: #3b4b7d;
+
+      :host-context(.dark-theme) & {
+        background-color: rgba(138, 158, 255, 0.1);
+        color: #8a9eff;
+      }
+    }
   }
 }
 
@@ -24,9 +117,211 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding: 24px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: #ffffff;
+
+  :host-context(.dark-theme) & {
+    background: #1a1d29;
+  }
+
+  // Override Material form field colors to use custom blues
+  ::ng-deep .mat-mdc-form-field {
+    .mat-mdc-form-field-outline {
+      color: #e5e7eb;
+
+      :host-context(.dark-theme) & {
+        color: #374151;
+      }
+    }
+
+    &.mat-focused .mat-mdc-form-field-outline-thick {
+      color: #3b4b7d;
+
+      :host-context(.dark-theme) & {
+        color: #8a9eff;
+      }
+    }
+
+    .mat-mdc-form-field-label {
+      color: #6b7280;
+
+      :host-context(.dark-theme) & {
+        color: #9ca3af;
+      }
+    }
+
+    &.mat-focused .mat-mdc-form-field-label {
+      color: #3b4b7d;
+
+      :host-context(.dark-theme) & {
+        color: #8a9eff;
+      }
+    }
+
+    .mat-mdc-select-value {
+      color: #1a1d29;
+
+      :host-context(.dark-theme) & {
+        color: #e5e7eb;
+      }
+    }
+
+    .mat-mdc-select-arrow {
+      color: #6b7280;
+
+      :host-context(.dark-theme) & {
+        color: #9ca3af;
+      }
+    }
+
+    &.mat-focused .mat-mdc-select-arrow {
+      color: #3b4b7d;
+
+      :host-context(.dark-theme) & {
+        color: #8a9eff;
+      }
+    }
+
+    .mat-datepicker-toggle {
+      color: #6b7280;
+
+      :host-context(.dark-theme) & {
+        color: #9ca3af;
+      }
+
+      &:hover {
+        color: #3b4b7d;
+
+        :host-context(.dark-theme) & {
+          color: #8a9eff;
+        }
+      }
+    }
+  }
+
+  // Override Material select panel colors
+  ::ng-deep .mat-mdc-select-panel {
+    .mat-mdc-option {
+      &.mdc-list-item--selected {
+        background-color: rgba(59, 75, 125, 0.08);
+        color: #3b4b7d;
+
+        :host-context(.dark-theme) & {
+          background-color: rgba(138, 158, 255, 0.1);
+          color: #8a9eff;
+        }
+      }
+
+      &:hover:not(.mdc-list-item--disabled) {
+        background-color: rgba(59, 75, 125, 0.05);
+
+        :host-context(.dark-theme) & {
+          background-color: rgba(138, 158, 255, 0.08);
+        }
+      }
+    }
+  }
+
+  // Override Material datepicker colors
+  ::ng-deep .mat-datepicker-content {
+    .mat-calendar-header {
+      background-color: #f9fafb;
+
+      :host-context(.dark-theme) & {
+        background-color: #111827;
+      }
+    }
+
+    .mat-calendar-body-selected {
+      background-color: #3b4b7d;
+      color: #ffffff;
+
+      :host-context(.dark-theme) & {
+        background-color: #8a9eff;
+        color: #1a1d29;
+      }
+    }
+
+    .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+      background-color: rgba(59, 75, 125, 0.08);
+
+      :host-context(.dark-theme) & {
+        background-color: rgba(138, 158, 255, 0.1);
+      }
+    }
+
+    .mat-calendar-period-button {
+      color: #3b4b7d;
+
+      :host-context(.dark-theme) & {
+        color: #8a9eff;
+      }
+    }
+
+    .mat-calendar-arrow {
+      border-top-color: #3b4b7d;
+
+      :host-context(.dark-theme) & {
+        border-top-color: #8a9eff;
+      }
+    }
+  }
+
+  .form-actions {
+    margin-top: auto;
+    padding-top: 24px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+// Custom scrollbar to match site styling
+.advanced-search-form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.advanced-search-form::-webkit-scrollbar-track {
+  background: #f9fafb;
+
+  :host-context(.dark-theme) & {
+    background: #111827;
+  }
+}
+
+.advanced-search-form::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+
+  :host-context(.dark-theme) & {
+    background: #4b5563;
+  }
+
+  &:hover {
+    background: #9ca3af;
+
+    :host-context(.dark-theme) & {
+      background: #6b7280;
+    }
+  }
 }
 
 .search-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  :host-context(.dark-theme) & {
+    background: #1a1d29;
+    border-color: #374151;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
   mat-card-content {
     display: flex;
     flex-direction: column;
@@ -52,13 +347,67 @@
 
 .form-actions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: flex-end;
-  padding: 16px 0;
+  border-top: 1px solid #f3f4f6;
+  flex-shrink: 0;
+  padding-top: 24px;
+
+  :host-context(.dark-theme) & {
+    border-top-color: #374151;
+  }
 
   button {
     mat-icon {
       margin-right: 8px;
+    }
+  }
+
+  // Override Material primary button colors
+  ::ng-deep .mat-mdc-raised-button.mat-primary {
+    background-color: #3b4b7d;
+    color: #ffffff;
+
+    &:hover:not(:disabled) {
+      background-color: #2d3c6a;
+    }
+
+    &:disabled {
+      background-color: rgba(59, 75, 125, 0.3);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    :host-context(.dark-theme) & {
+      background-color: #8a9eff;
+      color: #1a1d29;
+
+      &:hover:not(:disabled) {
+        background-color: #6b7fff;
+      }
+
+      &:disabled {
+        background-color: rgba(138, 158, 255, 0.3);
+        color: rgba(26, 29, 41, 0.5);
+      }
+    }
+  }
+
+  // Style regular mat-button
+  ::ng-deep .mat-mdc-button {
+    color: #6b7280;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(59, 75, 125, 0.08);
+      color: #3b4b7d;
+    }
+
+    :host-context(.dark-theme) & {
+      color: #9ca3af;
+
+      &:hover:not(:disabled) {
+        background-color: rgba(138, 158, 255, 0.1);
+        color: #8a9eff;
+      }
     }
   }
 }
@@ -68,8 +417,14 @@
   margin-bottom: 24px;
   padding: 16px;
   background: #f9fafb;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  :host-context(.dark-theme) & {
+    background: #111827;
+    border-color: #374151;
+  }
 
   .operator-title {
     display: flex;
@@ -95,10 +450,16 @@
     margin-top: 12px;
     padding: 12px;
     background: #ffffff;
-    border-radius: 6px;
+    border-radius: 8px;
     border-left: 3px solid #3b4b7d;
     font-size: 0.85rem;
     color: #4b5563;
+
+    :host-context(.dark-theme) & {
+      background: #1a1d29;
+      color: #9ca3af;
+      border-left-color: #8a9eff;
+    }
 
     code {
       background: #f3f4f6;
@@ -106,6 +467,11 @@
       border-radius: 4px;
       font-family: 'Courier New', monospace;
       color: #1f2937;
+
+      :host-context(.dark-theme) & {
+        background: #111827;
+        color: #e5e7eb;
+      }
     }
   }
 }

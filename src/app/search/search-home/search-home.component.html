@@ -13,6 +13,7 @@
           size="large"
           placeholder="Search the intranet..."
           (search)="onSearch($event)"
+          (openAdvancedSearch)="openAdvancedSearch()"
         ></app-search-bar>
       </div>
     </div>
@@ -50,4 +51,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Advanced Search Panel -->
+  <app-advanced-search
+    [isOpen]="showAdvancedSearch"
+    (close)="closeAdvancedSearch()"
+    (search)="onAdvancedSearch($event)"
+  ></app-advanced-search>
 </div>

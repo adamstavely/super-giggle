@@ -48,7 +48,9 @@
         </span>
       </div>
       <div class="advanced-search-link-wrapper">
-        <a routerLink="/search/advanced" class="advanced-search-link" aria-label="Advanced search options">Advanced Search</a>
+        <button mat-button class="advanced-search-link" (click)="openAdvancedSearch()" aria-label="Advanced search options">
+          Advanced Search
+        </button>
       </div>
     </div>
   </div>
@@ -61,6 +63,7 @@
       [showAdvancedLink]="true"
       size="medium"
       (search)="onSearch($event)"
+      (openAdvancedSearch)="openAdvancedSearch()"
     ></app-search-bar>
   </div>
 
@@ -302,4 +305,11 @@
     (close)="onCloseQuickView()"
     (navigateResult)="onNavigateQuickView($event)"
   ></app-quick-view-panel>
+
+  <!-- Advanced Search Panel -->
+  <app-advanced-search
+    [isOpen]="showAdvancedSearch"
+    (close)="closeAdvancedSearch()"
+    (search)="onAdvancedSearch($event)"
+  ></app-advanced-search>
 </div>

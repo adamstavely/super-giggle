@@ -1,11 +1,18 @@
-<div class="advanced-search-container">
-  <div class="advanced-search-header">
-    <h1>Advanced Search</h1>
-    <p class="subtitle">Use advanced options to refine your search</p>
-  </div>
+<div class="advanced-search-panel" [class.open]="isOpen" (click)="$event.stopPropagation()">
+  <div class="advanced-search-overlay" *ngIf="isOpen" (click)="onClose()"></div>
+  <div class="advanced-search-container">
+    <div class="advanced-search-header">
+      <div class="header-content">
+        <h2>Advanced Search</h2>
+        <p class="subtitle">Use advanced options to refine your search</p>
+      </div>
+      <button mat-icon-button class="close-button" (click)="onClose()" aria-label="Close advanced search">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
 
-  <form [formGroup]="advancedSearchForm" (ngSubmit)="onSubmit()" class="advanced-search-form">
-    <mat-card class="search-card">
+    <form [formGroup]="advancedSearchForm" (ngSubmit)="onSubmit()" class="advanced-search-form">
+      <mat-card class="search-card">
       <mat-card-header>
         <mat-card-title>Search Terms</mat-card-title>
         <mat-card-subtitle>Specify what you're looking for</mat-card-subtitle>
@@ -266,19 +273,17 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Action Buttons -->
-    <div class="form-actions">
-      <button mat-raised-button color="primary" type="submit" [disabled]="advancedSearchForm.invalid">
-        <mat-icon>search</mat-icon>
-        Search
-      </button>
-      <button mat-button type="button" (click)="onClear()">
-        <mat-icon>clear</mat-icon>
-        Clear
-      </button>
-      <button mat-button type="button" (click)="onCancel()">
-        Cancel
-      </button>
-    </div>
-  </form>
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="advancedSearchForm.invalid">
+          <mat-icon>search</mat-icon>
+          Search
+        </button>
+        <button mat-button type="button" (click)="onClear()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

@@ -8,6 +8,7 @@ import { SearchService } from '../search.service';
   styleUrls: ['./search-home.component.scss']
 })
 export class SearchHomeComponent implements OnInit {
+  showAdvancedSearch = false;
   trendingSearches: string[] = [];
   quickLinks: { label: string; url: string; icon: string }[] = [
     { label: 'Employee Directory', url: '/directory', icon: 'people' },
@@ -33,6 +34,36 @@ export class SearchHomeComponent implements OnInit {
         replaceUrl: false // Allow history for initial search
       });
     }
+  }
+
+  openAdvancedSearch(): void {
+    this.showAdvancedSearch = true;
+  }
+
+  closeAdvancedSearch(): void {
+    this.showAdvancedSearch = false;
+  }
+
+  onAdvancedSearch(event: { query: string; filters: any }): void {
+    const queryParams: any = { q: event.query };
+    
+    if (event.filters.fileFormats && event.filters.fileFormats.length > 0) {
+      queryParams.fileFormats = event.filters.fileFormats.join(',');
+    }
+    
+    if (event.filters.contentTypes && event.filters.contentTypes.length > 0) {
+      queryParams.contentTypes = event.filters.contentTypes.join(',');
+    }
+    
+    if (event.filters.dateFrom) {
+      queryParams.dateFrom = event.filters.dateFrom.toISOString();
+    }
+    
+    if (event.filters.dateTo) {
+      queryParams.dateTo = event.filters.dateTo.toISOString();
+    }
+    
+    this.router.navigate(['/search/results'], { queryParams });
   }
 
   navigateToLink(url: string): void {

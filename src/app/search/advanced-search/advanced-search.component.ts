@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostListener, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { SearchFilters } from '../search.models';
 import { QueryProcessingService } from '../../core/services/query-processing.service';
@@ -10,7 +10,10 @@ import { QueryProcessingService } from '../../core/services/query-processing.ser
   templateUrl: './advanced-search.component.html',
   styleUrls: ['./advanced-search.component.scss']
 })
-export class AdvancedSearchComponent implements OnInit {
+export class AdvancedSearchComponent implements OnInit, OnDestroy {
+  @Input() isOpen: boolean = false;
+  @Output() close = new EventEmitter<void>();
+  @Output() search = new EventEmitter<{ query: string; filters: SearchFilters }>();
   advancedSearchForm: FormGroup;
   booleanOperators = [
     { value: 'AND', label: 'All of these words (AND)' },
@@ -56,6 +59,7 @@ export class AdvancedSearchComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private queryProcessingService: QueryProcessingService,
     private dialog: MatDialog
   ) {
@@ -84,12 +88,13 @@ export class AdvancedSearchComponent implements OnInit {
 
   ngOnInit(): void {
     // Check if there are query params to pre-fill the form
-    const queryParams = this.router.parseUrl(this.router.url).queryParams;
-    if (queryParams['q']) {
-      this.advancedSearchForm.patchValue({
-        allWords: queryParams['q']
-      });
-    }
+    this.route.queryParams.subscribe(params => {
+      if (params['q']) {
+        this.advancedSearchForm.patchValue({
+          allWords: params['q']
+        });
+      }
+    });
   }
 
   onSubmit(): void {
@@ -199,28 +204,9 @@ export class AdvancedSearchComponent implements OnInit {
       filters.dateTo = formValue.dateTo;
     }
     
-    // Navigate to results page with query and filters
-    const queryParams: any = {
-      q: query
-    };
-    
-    if (filters.fileFormats && filters.fileFormats.length > 0) {
-      queryParams.fileFormats = filters.fileFormats.join(',');
-    }
-    
-    if (filters.contentTypes && filters.contentTypes.length > 0) {
-      queryParams.contentTypes = filters.contentTypes.join(',');
-    }
-    
-    if (filters.dateFrom) {
-      queryParams.dateFrom = filters.dateFrom.toISOString();
-    }
-    
-    if (filters.dateTo) {
-      queryParams.dateTo = filters.dateTo.toISOString();
-    }
-    
-    this.router.navigate(['/search/results'], { queryParams });
+    // Emit search event instead of navigating
+    this.search.emit({ query, filters });
+    this.close.emit();
   }
 
   onClear(): void {
@@ -239,7 +225,22 @@ export class AdvancedSearchComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/search']);
+    this.close.emit();
+  }
+
+  onClose(): void {
+    this.close.emit();
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent): void {
+    if (this.isOpen) {
+      this.onClose();
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup if needed
   }
 
   toggleAdvancedOperators(): void {
