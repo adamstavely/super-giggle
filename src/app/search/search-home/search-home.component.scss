@@ -80,8 +80,7 @@
 }
 
 .trending-section,
-.quick-links-section,
-.search-tips-section {
+.quick-links-section {
   margin-bottom: 64px;
 
   .section-title {
@@ -211,77 +210,6 @@
   }
 }
 
-.search-tips-section {
-  .tips-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-
-    .tip-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 24px;
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-      :host-context(.dark-theme) & {
-        background: #1a1d29;
-        border-color: #374151;
-      }
-
-      &:hover {
-        border-color: #3b4b7d;
-        box-shadow: 0 4px 12px rgba(59, 75, 125, 0.1);
-        transform: translateY(-2px);
-      }
-
-      .tip-icon {
-        font-size: 36px;
-        width: 36px;
-        height: 36px;
-        color: #3b4b7d;
-        flex-shrink: 0;
-        background: linear-gradient(135deg, rgba(59, 75, 125, 0.1), rgba(89, 102, 145, 0.1));
-        border-radius: 8px;
-        padding: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .tip-content {
-        h4 {
-          margin: 0 0 10px 0;
-          font-size: 17px;
-          font-weight: 600;
-          color: #1a1d29;
-          letter-spacing: 0.01em;
-          transition: color 0.3s ease;
-
-          :host-context(.dark-theme) & {
-            color: #e5e7eb;
-          }
-        }
-
-        p {
-          margin: 0;
-          font-size: 15px;
-          color: #6b7280;
-          line-height: 1.6;
-          transition: color 0.3s ease;
-
-          :host-context(.dark-theme) & {
-            color: #9ca3af;
-          }
-        }
-      }
-    }
-  }
-}
-
 // Responsive design
 @media (max-width: 768px) {
   .search-home-container {
@@ -301,8 +229,7 @@
   }
 
   .trending-section,
-  .quick-links-section,
-  .search-tips-section {
+  .quick-links-section {
     margin-bottom: 48px;
 
     .section-title {
@@ -313,13 +240,6 @@
   .quick-links-section {
     .quick-links-grid {
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-  }
-
-  .search-tips-section {
-    .tips-list {
-      grid-template-columns: 1fr;
       gap: 16px;
     }
   }

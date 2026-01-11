@@ -333,11 +333,6 @@
           padding: 0 16px;
           transition: all 0.3s ease;
 
-          :host-context(.dark-theme) & {
-            background: #1a1d29;
-            border-color: #374151;
-          }
-
           ::ng-deep {
             .mat-mdc-tab-header {
               border-bottom: 1px solid #e5e7eb;
