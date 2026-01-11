@@ -49,30 +49,13 @@
         mat-icon-button
         class="header-widget user-avatar"
         (click)="onUserAvatarClick()"
-        aria-label="User menu"
-        [matMenuTriggerFor]="userMenu"
+        aria-label="User profile"
       >
         <div class="avatar-container">
           <mat-icon *ngIf="!userAvatar" class="avatar-icon">account_circle</mat-icon>
           <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="avatar-image" />
         </div>
       </button>
-
-      <mat-menu #userMenu="matMenu">
-        <button mat-menu-item>
-          <mat-icon>person</mat-icon>
-          <span>Profile</span>
-        </button>
-        <button mat-menu-item>
-          <mat-icon>settings</mat-icon>
-          <span>Settings</span>
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item>
-          <mat-icon>logout</mat-icon>
-          <span>Sign Out</span>
-        </button>
-      </mat-menu>
     </div>
   </div>
 </header>
