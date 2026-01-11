@@ -41,11 +41,17 @@ This application provides a full-featured search interface for employee intranet
   - Boolean operators (AND, OR, NOT)
   - Exact phrase matching with quotation marks
   - Field-specific searches (title, author, content)
+  - Proximity search
+  - Wildcard patterns
+  - Regex patterns
+  - Field boosting
   - Date range filtering
   - File format and content type filters
 - **Autocomplete**: Real-time suggestions with debouncing (200ms)
 - **Search History**: Persistent search history stored in localStorage
 - **Trending Searches**: Display of popular search queries
+- **Query Expansion**: Automatic query expansion with user control
+- **Spell Correction**: Automatic spelling suggestions
 
 ### Results Display
 
@@ -63,7 +69,13 @@ This application provides a full-featured search interface for employee intranet
   - File type indicators
   - Breadcrumb navigation
   - Thumbnail previews (for images/videos)
-- **Feedback System**: "Was this helpful?" buttons for result quality feedback
+  - Document metadata (file size, word count, reading time)
+- **Featured Results**: Curated recommended results displayed prominently
+- **Group by Source**: Option to group results by source system
+- **Quick View Panel**: Side panel for quick document preview
+- **Document Preview**: Full document preview with metadata
+- **Feedback System**: "Was this helpful?" buttons (right-aligned with breadcrumb for space efficiency)
+- **AI Answer**: AI-powered answer generation for search queries
 
 ### Filtering
 
@@ -77,11 +89,28 @@ This application provides a full-featured search interface for employee intranet
 ### User Experience
 
 - **Responsive Design**: Optimized for mobile, tablet, and desktop
-- **Accessibility**: WCAG 2.1 Level AA compliance
-- **Keyboard Navigation**: Full keyboard support for all interactions
+- **Accessibility**: 
+  - WCAG 2.1 Level AA compliance
+  - Accessibility settings panel
+  - Screen reader support
+  - Keyboard navigation throughout
+- **Keyboard Shortcuts**: 
+  - `/` - Focus search bar
+  - `Esc` - Clear search or close modals
+  - `↑/↓` - Navigate results
+  - `Enter` - Open selected result
+  - `?` - Show keyboard shortcuts help
+  - `Ctrl/Cmd + Z` - Undo
+  - `Ctrl/Cmd + Shift + Z` - Redo
 - **Loading States**: Skeleton loaders and progress indicators
-- **Error Handling**: User-friendly error messages and retry options
-- **Empty States**: Helpful messages when no results are found
+- **Error Handling**: User-friendly error messages with retry options and offline detection
+- **Empty States**: Helpful messages with spelling suggestions, related searches, and popular searches
+- **Performance Optimizations**:
+  - Response caching
+  - Prefetching next page
+  - Lazy loading images
+  - Client-side indexing for fast filtering
+  - Optimistic UI updates
 
 ## 🛠 Tech Stack
 
@@ -151,23 +180,47 @@ npm install -g @angular/cli@17
 ```
 src/
 ├── app/
+│   ├── core/                            # Core services and utilities
+│   │   ├── services/                    # Core services
+│   │   │   ├── cache.service.ts         # Response caching
+│   │   │   ├── prefetch.service.ts      # Next page prefetching
+│   │   │   ├── client-index.service.ts  # Client-side indexing
+│   │   │   ├── document-metadata.service.ts
+│   │   │   ├── document-preview.service.ts
+│   │   │   ├── keyboard-shortcuts.service.ts
+│   │   │   ├── undo-redo.service.ts
+│   │   │   ├── query-processing.service.ts
+│   │   │   ├── ai-answer.service.ts
+│   │   │   ├── analytics.service.ts
+│   │   │   ├── error-tracking.service.ts
+│   │   │   └── ...                      # Additional services
+│   │   ├── interceptors/                # HTTP interceptors
+│   │   ├── models/                      # Core models
+│   │   └── error-handler/               # Global error handler
 │   ├── search/                          # Search feature module
-│   │   ├── advanced-search/              # Advanced search component
-│   │   │   ├── advanced-search.component.ts
-│   │   │   ├── advanced-search.component.html
-│   │   │   └── advanced-search.component.scss
+│   │   ├── advanced-search/             # Advanced search component
+│   │   ├── ai-answer/                   # AI answer component
 │   │   ├── autocomplete/                # Autocomplete component
+│   │   ├── accessibility-settings/     # Accessibility settings
+│   │   ├── document-preview/            # Document preview component
 │   │   ├── featured-results/            # Featured results component
 │   │   ├── filter-sidebar/              # Filter sidebar component
-│   │   ├── header/                       # Header component
-│   │   ├── result-item/                  # Individual result item component
-│   │   ├── search-bar/                  # Reusable search bar component
-│   │   ├── search-home/                 # Search homepage component
-│   │   ├── search-results/              # Search results page component
-│   │   ├── search.models.ts             # TypeScript interfaces and types
-│   │   ├── search.service.ts            # Search service (API integration)
+│   │   ├── header/                      # Header component
+│   │   ├── keyboard-shortcuts-help/     # Keyboard shortcuts help
+│   │   ├── loading-skeleton/            # Loading skeleton component
+│   │   ├── quick-actions-menu/          # Quick actions menu
+│   │   ├── quick-view-panel/            # Quick view panel
+│   │   ├── result-item/                  # Individual result item
+│   │   ├── search-bar/                  # Reusable search bar
+│   │   ├── search-breadcrumbs/          # Search breadcrumbs
+│   │   ├── search-home/                 # Search homepage
+│   │   ├── search-results/              # Search results page
+│   │   ├── search-tips/                 # Search tips component
+│   │   ├── search.models.ts             # TypeScript interfaces
+│   │   ├── search.service.ts            # Search service
 │   │   ├── search.module.ts             # Feature module
 │   │   └── search-routing.module.ts     # Routing configuration
+│   ├── testing/                         # Test utilities and mocks
 │   ├── app.module.ts                    # Root module
 │   ├── app-routing.module.ts            # Root routing
 │   └── app.component.ts                 # Root component
@@ -467,9 +520,12 @@ Individual search result display.
 - Title with clickable link
 - Snippet with search term highlighting
 - Metadata display (source, author, date, file type)
-- Breadcrumb navigation
-- Thumbnail previews
-- Feedback buttons
+- Breadcrumb navigation (with feedback on same line, right-aligned)
+- Thumbnail previews with lazy loading
+- Document metadata (file size, word count, reading time)
+- Quick actions menu (preview, download, share, bookmark, copy link)
+- Feedback buttons ("Was this helpful?")
+- Quick view integration
 
 ### FilterSidebarComponent
 
@@ -500,6 +556,57 @@ Application header component.
 ### FeaturedResultsComponent
 
 Featured results display component.
+
+**Features:**
+- Curated recommended results
+- Prominent display with gradient styling
+- Result recommendation functionality
+
+### AIAnswerComponent
+
+AI-powered answer generation for search queries.
+
+**Features:**
+- Natural language answers
+- Integration with AI service
+- Display of AI-generated responses
+
+### QuickViewPanelComponent
+
+Side panel for quick document preview.
+
+**Features:**
+- Document preview without leaving results page
+- Navigation between results
+- Metadata display
+- Close button
+
+### KeyboardShortcutsHelpComponent
+
+Keyboard shortcuts help dialog.
+
+**Features:**
+- List of available keyboard shortcuts
+- Context-aware help
+- Accessible via `?` key
+
+### AccessibilitySettingsComponent
+
+Accessibility settings panel.
+
+**Features:**
+- Font size adjustments
+- Color contrast options
+- Screen reader optimizations
+
+### DocumentPreviewComponent
+
+Full document preview component.
+
+**Features:**
+- Document rendering
+- Metadata display
+- Download options
 
 ## 🗺 Routing
 
@@ -607,6 +714,53 @@ npm test -- --code-coverage
 - Add comments for complex logic
 - Maintain test coverage
 
+## 🚢 Deployment
+
+### Docker
+
+The application includes a Dockerfile for containerized deployment:
+
+```bash
+# Build the Docker image
+docker build -t intranet-search:latest .
+
+# Run the container
+docker run -p 80:80 intranet-search:latest
+```
+
+The Dockerfile uses a multi-stage build:
+1. Build stage: Node.js 18 Alpine with Angular build
+2. Production stage: Nginx Alpine serving the built application
+
+### Kubernetes/Helm
+
+Helm charts are available in the `helm/intranet-search/` directory for Kubernetes deployment:
+
+```bash
+# Install using Helm
+helm install intranet-search ./helm/intranet-search
+
+# Upgrade existing deployment
+helm upgrade intranet-search ./helm/intranet-search
+```
+
+The Helm chart includes:
+- Deployment configuration
+- Service definitions
+- Ingress configuration
+- Horizontal Pod Autoscaler (HPA)
+- ConfigMap and Secret management
+
+### Environment Variables
+
+For production deployment, configure the following environment variables:
+
+- `ELASTICSEARCH_ENDPOINT` - Elasticsearch API endpoint
+- `ELASTICSEARCH_API_KEY` - API key for authentication (or use username/password)
+- `ELASTICSEARCH_USERNAME` - Username for basic auth
+- `ELASTICSEARCH_PASSWORD` - Password for basic auth
+- `ELASTICSEARCH_INDEX` - Elasticsearch index name
+
 ## 📝 License
 
 This project is private and proprietary. All rights reserved.
@@ -619,7 +773,8 @@ For issues, questions, or contributions, please contact the development team.
 
 Potential future features (out of scope for current version):
 
-- AI-powered answer generation
+- **Saved Search Templates UI**: Service exists, UI component needed
+- **Share Dialog Component**: Service exists, dialog component needed
 - Voice search
 - Visual search
 - Browser extension
