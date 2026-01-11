@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Code cleanup: Removed ~819 lines of unused/orphaned code
 
-## [1.0.0] - 2024-03-15
+## [1.0.0] - 2026-01-10
 
 ### Added
 
