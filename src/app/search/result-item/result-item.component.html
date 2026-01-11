@@ -10,6 +10,17 @@
         </a>
       </div>
       <div class="result-header-actions">
+        <!-- Preview Button (if supported) -->
+        <button
+          *ngIf="supportsPreview"
+          mat-button
+          class="preview-button-header"
+          (click)="onOpenQuickView()"
+          [attr.aria-label]="'Preview ' + result.title"
+        >
+          <mat-icon>preview</mat-icon>
+          <span>Preview</span>
+        </button>
         <!-- Quick Actions Menu -->
         <button
           mat-icon-button
@@ -139,14 +150,6 @@
       <span *ngFor="let crumb of result.breadcrumb; let last = last" class="breadcrumb-item">
         {{ crumb }}<span *ngIf="!last" class="breadcrumb-separator"> / </span>
       </span>
-    </div>
-
-    <!-- Preview Button -->
-    <div class="preview-actions" *ngIf="supportsPreview">
-      <button mat-button (click)="onOpenQuickView()" class="preview-button">
-        <mat-icon>preview</mat-icon>
-        <span>Preview</span>
-      </button>
     </div>
 
     <div class="result-feedback">
