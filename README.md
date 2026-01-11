@@ -133,11 +133,9 @@ npm install -g @angular/cli@17
 
 3. **Configure environment**:
    ```bash
-   # Edit src/environments/environment.ts
-   export const environment = {
-     production: false,
-     apiUrl: 'http://localhost:9200/api' // Your Elasticsearch API URL
-   };
+   # Edit src/environments/environment.ts for development
+   # Edit src/environments/environment.prod.ts for production
+   # See Environment Configuration section below for details
    ```
 
 4. **Start the development server**:
@@ -230,11 +228,29 @@ npm start
 # Build for production
 npm run build
 
+# Build for production with stats
+npm run build:prod
+
 # Build with watch mode
 npm run watch
 
 # Run unit tests
 npm test
+
+# Run linting
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Format code
+npm run format
+
+# Check code formatting
+npm run format:check
+
+# Run security audit
+npm run audit
 ```
 
 ### Development Server
@@ -346,14 +362,32 @@ GET /api/search/trending
 
 ### Environment Configuration
 
-Configure your API URL in `src/environments/environment.ts`:
+Configure your environment in `src/environments/environment.ts` (development) and `src/environments/environment.prod.ts` (production):
 
 ```typescript
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:9200/api'
+  production: boolean,
+  apiUrl: string,
+  elasticsearch: {
+    endpoint: string,
+    apiKey?: string,
+    username?: string,
+    password?: string,
+    index: string,
+    batchSize: number,
+    flushInterval: number
+  },
+  appVersion: string,
+  buildDate: string,
+  serviceName: string,
+  logLevel: 'debug' | 'info' | 'warn' | 'error'
 };
 ```
+
+**Important**: For production, set Elasticsearch credentials via environment variables:
+- `ELASTICSEARCH_ENDPOINT`
+- `ELASTICSEARCH_API_KEY` (or `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`)
+- `ELASTICSEARCH_INDEX`
 
 ### Mock Data
 
@@ -527,7 +561,14 @@ To customize the theme:
 ### Running Tests
 
 ```bash
+# Run tests once
 npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run tests with coverage
+npm test -- --code-coverage
 ```
 
 ### Test Structure
@@ -535,6 +576,12 @@ npm test
 - Unit tests: `*.spec.ts` files alongside components
 - Service tests: Test API integration and business logic
 - Component tests: Test user interactions and rendering
+- Test utilities: Shared mocks and helpers in `src/app/testing/`
+
+### Test Coverage Goals
+
+- Minimum 70% code coverage
+- 100% coverage for critical paths (search service, error handling)
 
 ### Testing Best Practices
 
@@ -542,6 +589,7 @@ npm test
 - Test API error handling
 - Test loading and empty states
 - Test accessibility features
+- Use test utilities for common patterns
 
 ## 🤝 Contributing
 

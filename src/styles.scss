@@ -175,11 +175,16 @@ html, body {
 }
 
 body {
-  background-color: #fafbfc;
+  // Subtle blue gradient for light mode
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f6 50%, #f5f9fc 100%);
+  background-attachment: fixed;
   color: #1a1d29;
+  min-height: 100vh;
 
   &.dark-theme {
-    background-color: #0f1117;
+    // Light blue gradient for dark mode
+    background: linear-gradient(135deg, #1a2332 0%, #1e2a3a 50%, #1f2d3f 100%);
+    background-attachment: fixed;
     color: #e5e7eb;
   }
 }
