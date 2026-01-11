@@ -1,0 +1,87 @@
+<div class="search-bar-container" [ngClass]="getSizeClass()">
+  <div class="search-input-wrapper">
+    <mat-form-field appearance="outline" class="search-input-field">
+      <mat-label>{{ placeholder }}</mat-label>
+      <input
+        #searchInput
+        matInput
+        [formControl]="searchControl"
+        (focus)="onInputFocus()"
+        (blur)="onInputBlur()"
+        (keydown)="onInputKeyDown($event)"
+        [attr.aria-label]="placeholder"
+        aria-describedby="search-help-text"
+      />
+      <button
+        *ngIf="searchControl.value"
+        mat-icon-button
+        matSuffix
+        (click)="clearSearch()"
+        aria-label="Clear search"
+        type="button"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="performSearch()"
+        aria-label="Search"
+        type="button"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <!-- Autocomplete Dropdown -->
+    <div
+      *ngIf="showAutocomplete && autocompleteSuggestions.length > 0"
+      class="autocomplete-dropdown"
+      role="listbox"
+      aria-label="Search suggestions"
+    >
+      <div
+        *ngFor="let suggestion of autocompleteSuggestions; let i = index"
+        class="autocomplete-item"
+        [class.selected]="i === selectedSuggestionIndex"
+        (click)="selectSuggestion(suggestion)"
+        (mousedown)="$event.preventDefault()"
+        role="option"
+        [attr.aria-selected]="i === selectedSuggestionIndex"
+      >
+        <mat-icon class="suggestion-icon">{{ getSuggestionIcon(suggestion.type) }}</mat-icon>
+        <span class="suggestion-text" [innerHTML]="highlightText(suggestion.text, searchControl.value || '')"></span>
+        <span *ngIf="suggestion.count" class="suggestion-count">{{ suggestion.count }}</span>
+      </div>
+    </div>
+
+    <!-- History Dropdown -->
+    <div
+      *ngIf="showHistoryDropdown && searchHistory.length > 0"
+      class="history-dropdown"
+      role="listbox"
+      aria-label="Search history"
+    >
+      <div class="history-header">
+        <span>Recent Searches</span>
+        <button mat-icon-button (click)="clearHistory()" aria-label="Clear history">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+      <div
+        *ngFor="let historyItem of searchHistory"
+        class="history-item"
+        (click)="selectHistoryItem(historyItem)"
+        (mousedown)="$event.preventDefault()"
+        role="option"
+      >
+        <mat-icon class="history-icon">history</mat-icon>
+        <span class="history-text">{{ historyItem.query }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showAdvancedLink" class="advanced-search-link">
+    <a routerLink="/search/advanced" aria-label="Advanced search options">Advanced Search</a>
+  </div>
+</div>

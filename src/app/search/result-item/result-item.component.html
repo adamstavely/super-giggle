@@ -1,0 +1,71 @@
+<mat-card class="result-item-card">
+  <mat-card-content>
+    <div class="result-header">
+      <div class="result-title-section">
+        <mat-icon class="file-type-icon" [title]="result.fileType">
+          {{ getFileTypeIcon(result.fileType) }}
+        </mat-icon>
+        <a [href]="result.url" class="result-title" [attr.aria-label]="'Open ' + result.title">
+          {{ result.title }}
+        </a>
+      </div>
+      <div *ngIf="result.thumbnail" class="result-thumbnail">
+        <img [src]="result.thumbnail" [alt]="result.title" />
+      </div>
+    </div>
+
+    <div class="result-snippet">{{ result.snippet }}</div>
+
+    <div class="result-metadata">
+      <div class="metadata-item" *ngIf="result.source">
+        <mat-icon class="metadata-icon">folder</mat-icon>
+        <span class="metadata-text">{{ result.source }}</span>
+      </div>
+      <div class="metadata-item" *ngIf="result.author">
+        <mat-icon class="metadata-icon">person</mat-icon>
+        <span class="metadata-text">{{ result.author }}</span>
+      </div>
+      <div class="metadata-item" *ngIf="result.lastModified">
+        <mat-icon class="metadata-icon">schedule</mat-icon>
+        <span class="metadata-text">{{ (result.lastModified | date:'MMM d, y') || '' }}</span>
+      </div>
+      <div class="metadata-item" *ngIf="result.fileType">
+        <mat-icon class="metadata-icon">insert_drive_file</mat-icon>
+        <span class="metadata-text">{{ result.fileType.toUpperCase() }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="result.breadcrumb && result.breadcrumb.length > 0" class="result-breadcrumb">
+      <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
+      <span *ngFor="let crumb of result.breadcrumb; let last = last" class="breadcrumb-item">
+        {{ crumb }}<span *ngIf="!last" class="breadcrumb-separator"> / </span>
+      </span>
+    </div>
+
+    <div class="result-feedback">
+      <span class="feedback-label">Was this helpful?</span>
+      <button
+        mat-button
+        class="feedback-button"
+        [class.clicked]="helpfulClicked"
+        (click)="onHelpfulClick()"
+        [disabled]="helpfulClicked || notHelpfulClicked"
+        aria-label="Mark as helpful"
+      >
+        <mat-icon>thumb_up</mat-icon>
+        <span>Yes</span>
+      </button>
+      <button
+        mat-button
+        class="feedback-button"
+        [class.clicked]="notHelpfulClicked"
+        (click)="onNotHelpfulClick()"
+        [disabled]="helpfulClicked || notHelpfulClicked"
+        aria-label="Mark as not helpful"
+      >
+        <mat-icon>thumb_down</mat-icon>
+        <span>No</span>
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

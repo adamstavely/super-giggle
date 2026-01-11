@@ -1,0 +1,177 @@
+<aside class="filter-sidebar" [attr.aria-label]="'Search filters'">
+  <div class="filter-header">
+    <h3>Filters</h3>
+    <button
+      *ngIf="hasActiveFilters()"
+      mat-button
+      class="clear-all-button"
+      (click)="clearAllFilters()"
+      aria-label="Clear all filters"
+    >
+      Clear all ({{ getActiveFiltersCount() }})
+    </button>
+  </div>
+
+  <div class="filter-content">
+    <!-- Active Filters Display -->
+    <div *ngIf="hasActiveFilters()" class="active-filters">
+      <h4>Active Filters</h4>
+      <div class="active-filter-chips">
+        <mat-chip-set>
+          <mat-chip
+            *ngFor="let contentType of filterForm.get('contentTypes')?.value"
+            (removed)="removeFilter('contentTypes', contentType)"
+          >
+            {{ getFilterLabel('contentTypes', contentType) }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip
+            *ngFor="let dept of filterForm.get('departments')?.value"
+            (removed)="removeFilter('departments', dept)"
+          >
+            {{ getFilterLabel('departments', dept) }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip
+            *ngFor="let author of filterForm.get('authors')?.value"
+            (removed)="removeFilter('authors', author)"
+          >
+            {{ getFilterLabel('authors', author) }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip
+            *ngFor="let format of filterForm.get('fileFormats')?.value"
+            (removed)="removeFilter('fileFormats', format)"
+          >
+            {{ getFilterLabel('fileFormats', format) }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip
+            *ngFor="let source of filterForm.get('sourceSystems')?.value"
+            (removed)="removeFilter('sourceSystems', source)"
+          >
+            {{ getFilterLabel('sourceSystems', source) }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip
+            *ngIf="filterForm.get('dateFrom')?.value"
+            (removed)="removeFilter('dateFrom')"
+          >
+            From: {{ filterForm.get('dateFrom')?.value | date:'shortDate' }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip
+            *ngIf="filterForm.get('dateTo')?.value"
+            (removed)="removeFilter('dateTo')"
+          >
+            To: {{ filterForm.get('dateTo')?.value | date:'shortDate' }}
+            <button matChipRemove aria-label="Remove filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <!-- Content Type Filter -->
+    <div class="filter-section">
+      <h4>Content Type</h4>
+      <mat-selection-list [formControl]="contentTypesControl">
+        <mat-list-option
+          *ngFor="let option of filterOptions.contentTypes"
+          [value]="option.value"
+        >
+          {{ option.label }}
+          <span class="filter-count">({{ option.count }})</span>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+
+    <!-- Department Filter -->
+    <div class="filter-section">
+      <h4>Department</h4>
+      <mat-selection-list [formControl]="departmentsControl">
+        <mat-list-option
+          *ngFor="let option of filterOptions.departments"
+          [value]="option.value"
+        >
+          {{ option.label }}
+          <span class="filter-count">({{ option.count }})</span>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+
+    <!-- Author Filter -->
+    <div class="filter-section">
+      <h4>Author</h4>
+      <mat-selection-list [formControl]="authorsControl">
+        <mat-list-option
+          *ngFor="let option of filterOptions.authors"
+          [value]="option.value"
+        >
+          {{ option.label }}
+          <span class="filter-count">({{ option.count }})</span>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+
+    <!-- File Format Filter -->
+    <div class="filter-section">
+      <h4>File Format</h4>
+      <mat-selection-list [formControl]="fileFormatsControl">
+        <mat-list-option
+          *ngFor="let option of filterOptions.fileFormats"
+          [value]="option.value"
+        >
+          {{ option.label }}
+          <span class="filter-count">({{ option.count }})</span>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+
+    <!-- Source System Filter -->
+    <div class="filter-section">
+      <h4>Source System</h4>
+      <mat-selection-list [formControl]="sourceSystemsControl">
+        <mat-list-option
+          *ngFor="let option of filterOptions.sourceSystems"
+          [value]="option.value"
+        >
+          {{ option.label }}
+          <span class="filter-count">({{ option.count }})</span>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="filter-section">
+      <h4>Date Range</h4>
+      <div class="date-range-filters">
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>From</mat-label>
+          <input matInput [matDatepicker]="fromPicker" [formControl]="dateFromControl">
+          <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>To</mat-label>
+          <input matInput [matDatepicker]="toPicker" [formControl]="dateToControl">
+          <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,78 @@
+<header class="search-header">
+  <div class="header-container">
+    <!-- Left side: Logo -->
+    <div class="header-left">
+      <a routerLink="/search" class="logo-link">
+        <span class="logo-text">search.com</span>
+      </a>
+    </div>
+
+    <!-- Right side: Widgets -->
+    <div class="header-right">
+      <!-- Directions Widget -->
+      <button
+        mat-icon-button
+        class="header-widget directions-widget"
+        (click)="onDirectionsClick()"
+        aria-label="Get directions"
+        matTooltip="Directions"
+      >
+        <mat-icon>directions</mat-icon>
+      </button>
+
+      <!-- Lunch Menu Widget -->
+      <button
+        mat-icon-button
+        class="header-widget lunch-widget"
+        (click)="onLunchMenuClick()"
+        aria-label="Lunch menu"
+        [matTooltip]="lunchMenu.available ? lunchMenu.today : 'No lunch menu available'"
+      >
+        <mat-icon>restaurant</mat-icon>
+        <span class="widget-badge" *ngIf="lunchMenu.available"></span>
+      </button>
+
+      <!-- Weather Widget -->
+      <button
+        mat-icon-button
+        class="header-widget weather-widget"
+        (click)="onWeatherClick()"
+        aria-label="Weather"
+        [matTooltip]="weatherData.temperature + '°F - ' + weatherData.condition"
+      >
+        <mat-icon>{{ weatherData.icon }}</mat-icon>
+        <span class="weather-temp">{{ weatherData.temperature }}°</span>
+      </button>
+
+      <!-- User Avatar -->
+      <button
+        mat-icon-button
+        class="header-widget user-avatar"
+        (click)="onUserAvatarClick()"
+        aria-label="User menu"
+        [matMenuTriggerFor]="userMenu"
+      >
+        <div class="avatar-container">
+          <mat-icon *ngIf="!userAvatar" class="avatar-icon">account_circle</mat-icon>
+          <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="avatar-image" />
+        </div>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon>logout</mat-icon>
+          <span>Sign Out</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</header>

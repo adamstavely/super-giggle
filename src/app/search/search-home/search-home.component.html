@@ -1,0 +1,88 @@
+<app-search-header></app-search-header>
+<div class="search-home-container">
+  <div class="search-home-content">
+    <!-- Main Search Section -->
+    <div class="main-search-section">
+      <h1 class="search-title">Search the Intranet</h1>
+      <p class="search-subtitle">Find documents, people, and resources across the organization</p>
+      
+      <div class="search-bar-container">
+        <app-search-bar
+          [showHistory]="true"
+          [showAdvancedLink]="true"
+          size="large"
+          placeholder="Search the intranet..."
+          (search)="onSearch($event)"
+        ></app-search-bar>
+      </div>
+    </div>
+
+    <!-- Trending Searches -->
+    <div *ngIf="trendingSearches.length > 0" class="trending-section">
+      <h2 class="section-title">Trending Searches</h2>
+      <div class="trending-chips">
+        <mat-chip-set>
+          <mat-chip
+            *ngFor="let search of trendingSearches"
+            (click)="onSearch(search)"
+            class="trending-chip"
+          >
+            {{ search }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links-section">
+      <h2 class="section-title">Quick Links</h2>
+      <div class="quick-links-grid">
+        <mat-card
+          *ngFor="let link of quickLinks"
+          class="quick-link-card"
+          (click)="navigateToLink(link.url)"
+        >
+          <mat-card-content>
+            <mat-icon class="quick-link-icon">{{ link.icon }}</mat-icon>
+            <h3>{{ link.label }}</h3>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Search Tips -->
+    <div class="search-tips-section">
+      <h2 class="section-title">Search Tips</h2>
+      <div class="tips-list">
+        <div class="tip-item">
+          <mat-icon class="tip-icon">search</mat-icon>
+          <div class="tip-content">
+            <h4>Use quotation marks</h4>
+            <p>Search for exact phrases: "project management"</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <mat-icon class="tip-icon">filter_list</mat-icon>
+          <div class="tip-content">
+            <h4>Use filters</h4>
+            <p>Narrow results by content type, department, or date</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <mat-icon class="tip-icon">code</mat-icon>
+          <div class="tip-content">
+            <h4>Field-specific search</h4>
+            <p>Use author:name or title:keyword to search specific fields</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <mat-icon class="tip-icon">add_circle</mat-icon>
+          <div class="tip-content">
+            <h4>Boolean operators</h4>
+            <p>Use AND, OR, NOT to combine search terms</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

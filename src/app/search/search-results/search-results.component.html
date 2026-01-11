@@ -1,0 +1,182 @@
+<app-search-header></app-search-header>
+<div class="search-results-container">
+  <!-- Search Bar with Controls -->
+  <div class="search-bar-wrapper" *ngIf="searchResponse && !loading && !error">
+    <div class="search-bar-row">
+      <div class="search-bar-container">
+        <app-search-bar
+          [initialQuery]="currentQuery"
+          [showHistory]="true"
+          [showAdvancedLink]="false"
+          size="medium"
+          (search)="onSearch($event)"
+        ></app-search-bar>
+      </div>
+      <div class="search-controls-inline">
+        <!-- Sort Dropdown -->
+        <mat-form-field appearance="outline" class="sort-select">
+          <mat-label>Sort by</mat-label>
+          <mat-select [value]="currentSort" (selectionChange)="onSortChange($event.value)">
+            <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Page Size Selector -->
+        <mat-form-field appearance="outline" class="page-size-select">
+          <mat-label>Per page</mat-label>
+          <mat-select [value]="pageSize" (selectionChange)="onPageSizeChange($event.value)">
+            <mat-option *ngFor="let size of pageSizeOptions" [value]="size">
+              {{ size }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filter Toggle (Mobile) -->
+        <button
+          mat-icon-button
+          class="filter-toggle"
+          (click)="toggleFilters()"
+          [attr.aria-expanded]="showFilters"
+          aria-label="Toggle filters sidebar"
+        >
+          <mat-icon>filter_list</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="search-info-row">
+      <div class="results-info">
+        <span class="results-count">
+          {{ searchResponse.totalCount | number }} result{{ searchResponse.totalCount !== 1 ? 's' : '' }}
+        </span>
+        <span class="search-time" *ngIf="searchResponse.searchTime">
+          ({{ searchResponse.searchTime | number:'1.2-2' }}ms)
+        </span>
+      </div>
+      <div class="advanced-search-link-wrapper">
+        <a routerLink="/search/advanced" class="advanced-search-link" aria-label="Advanced search options">Advanced Search</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar (when no results yet) -->
+  <div class="search-bar-wrapper" *ngIf="!searchResponse || loading || error">
+    <app-search-bar
+      [initialQuery]="currentQuery"
+      [showHistory]="true"
+      [showAdvancedLink]="true"
+      size="medium"
+      (search)="onSearch($event)"
+    ></app-search-bar>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Searching...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="performSearch()">Try Again</button>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="searchResponse && !loading && !error" class="results-wrapper">
+    <div class="results-layout">
+      <!-- Filter Sidebar -->
+      <aside class="filter-sidebar-wrapper" [class.hidden]="!showFilters" [attr.aria-label]="'Search filters'">
+        <app-filter-sidebar
+          [currentQuery]="currentQuery"
+          (filtersChange)="onFiltersChange($event)"
+        ></app-filter-sidebar>
+      </aside>
+
+      <!-- Results List -->
+      <main class="results-list" [attr.aria-label]="'Search results'">
+        <!-- Tabs -->
+        <mat-tab-group 
+          [(selectedIndex)]="selectedTabIndex"
+          (selectedIndexChange)="onTabChange($event)"
+          class="results-tabs"
+          animationDuration="200ms"
+        >
+          <mat-tab>
+            <ng-template mat-tab-label>
+              All <span class="tab-count">({{ getTabCounts().all }})</span>
+            </ng-template>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              News <span class="tab-count">({{ getTabCounts().news }})</span>
+            </ng-template>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              Video <span class="tab-count">({{ getTabCounts().video }})</span>
+            </ng-template>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              Images <span class="tab-count">({{ getTabCounts().images }})</span>
+            </ng-template>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              Sites <span class="tab-count">({{ getTabCounts().sites }})</span>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+
+        <!-- Empty State -->
+        <div *ngIf="getFilteredResults().length === 0 && searchResponse.totalCount > 0" class="empty-state">
+          <mat-icon class="empty-icon">search_off</mat-icon>
+          <h2>No {{ selectedTab }} results found</h2>
+          <p>Try selecting a different tab or adjusting your search terms</p>
+        </div>
+
+        <div *ngIf="searchResponse.totalCount === 0" class="empty-state">
+          <mat-icon class="empty-icon">search_off</mat-icon>
+          <h2>No results found</h2>
+          <p>Try adjusting your search terms or filters</p>
+          <ul class="suggestions">
+            <li>Check your spelling</li>
+            <li>Try different keywords</li>
+            <li>Remove filters</li>
+            <li>Use more general terms</li>
+          </ul>
+        </div>
+
+        <!-- Results -->
+        <div *ngIf="getFilteredResults().length > 0">
+          <app-result-item
+            *ngFor="let result of getFilteredResults(); trackBy: trackByResultId"
+            [result]="result"
+            [searchQuery]="currentQuery"
+          ></app-result-item>
+
+          <!-- Pagination -->
+          <div class="pagination-wrapper" *ngIf="selectedTab === 'all'">
+            <mat-paginator
+              [length]="searchResponse.totalCount"
+              [pageSize]="pageSize"
+              [pageIndex]="currentPage - 1"
+              [pageSizeOptions]="pageSizeOptions"
+              (page)="onPageChange($event.pageIndex + 1)"
+              showFirstLastButtons
+              aria-label="Select page"
+            ></mat-paginator>
+          </div>
+          <div class="pagination-info" *ngIf="selectedTab !== 'all'">
+            <p class="filtered-results-info">
+              Showing {{ getFilteredResults().length }} of {{ searchResponse.totalCount }} results
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

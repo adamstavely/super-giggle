@@ -1,0 +1,12 @@
+<router-outlet></router-outlet>
+
+<!-- Dark Mode FAB -->
+<button
+  mat-fab
+  class="theme-fab"
+  (click)="toggleTheme()"
+  [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+  [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+</button>
