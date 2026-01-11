@@ -76,17 +76,33 @@
     ></app-search-bar>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Searching...</p>
+  <!-- Loading State with Skeleton -->
+  <div *ngIf="loading && !searchResponse" class="loading-container">
+    <app-loading-skeleton type="result-item" [count]="5" [showHeader]="true"></app-loading-skeleton>
   </div>
 
   <!-- Error State -->
   <div *ngIf="error && !loading" class="error-container">
-    <mat-icon class="error-icon">error_outline</mat-icon>
+    <mat-icon class="error-icon">{{ getErrorIcon() }}</mat-icon>
+    <h2>{{ getErrorTitle() }}</h2>
     <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="performSearch()">Try Again</button>
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="retrySearch()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+      <button mat-button (click)="clearFilters()" *ngIf="hasActiveFilters()">
+        <mat-icon>clear_all</mat-icon>
+        Clear Filters
+      </button>
+      <button mat-button (click)="clearSearch()">
+        <mat-icon>search</mat-icon>
+        New Search
+      </button>
+    </div>
+    <div class="error-details" *ngIf="errorDetails">
+      <p class="error-detail-text">{{ errorDetails }}</p>
+    </div>
   </div>
 
   <!-- Results -->
@@ -142,23 +158,72 @@
           </mat-tab>
         </mat-tab-group>
 
-        <!-- Empty State -->
+        <!-- Empty State (Filtered) -->
         <div *ngIf="getFilteredResults().length === 0 && searchResponse.totalCount > 0" class="empty-state">
-          <mat-icon class="empty-icon">search_off</mat-icon>
-          <h2>No {{ selectedTab }} results found</h2>
-          <p>Try selecting a different tab or adjusting your search terms</p>
+          <mat-icon class="empty-icon">filter_alt_off</mat-icon>
+          <h2>No {{ selectedTab }} results match your filters</h2>
+          <p>Try adjusting your filters to see more results.</p>
+          <div class="empty-state-actions">
+            <button mat-raised-button color="primary" (click)="clearFilters()">
+              <mat-icon>clear_all</mat-icon>
+              Clear Filters
+            </button>
+            <button mat-button (click)="showAllResults()">
+              <mat-icon>visibility</mat-icon>
+              Show All Results
+            </button>
+          </div>
         </div>
-
+        
+        <!-- Empty State (No Results) -->
         <div *ngIf="searchResponse.totalCount === 0" class="empty-state">
           <mat-icon class="empty-icon">search_off</mat-icon>
-          <h2>No results found</h2>
-          <p>Try adjusting your search terms or filters</p>
-          <ul class="suggestions">
-            <li>Check your spelling</li>
-            <li>Try different keywords</li>
-            <li>Remove filters</li>
-            <li>Use more general terms</li>
-          </ul>
+          <h2>No results found for "{{ currentQuery }}"</h2>
+          <p class="empty-suggestions">
+            <span *ngIf="spellingSuggestion">Did you mean: <strong (click)="onSearch(spellingSuggestion)" style="cursor: pointer; text-decoration: underline;">{{ spellingSuggestion }}</strong>?</span>
+            <span *ngIf="!spellingSuggestion">Try different keywords or check your spelling.</span>
+          </p>
+          
+          <!-- Related Searches -->
+          <div class="related-searches" *ngIf="relatedSearches.length > 0">
+            <h3>Related Searches</h3>
+            <div class="related-search-chips">
+              <button 
+                mat-stroked-button 
+                *ngFor="let related of relatedSearches"
+                (click)="onSearch(related)"
+                class="related-search-chip"
+              >
+                {{ related }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Popular Searches -->
+          <div class="popular-searches" *ngIf="popularSearches.length > 0">
+            <h3>Popular Searches</h3>
+            <div class="popular-search-chips">
+              <button 
+                mat-stroked-button 
+                *ngFor="let popular of popularSearches"
+                (click)="onSearch(popular)"
+                class="popular-search-chip"
+              >
+                {{ popular }}
+              </button>
+            </div>
+          </div>
+
+          <div class="empty-state-actions">
+            <button mat-raised-button color="primary" (click)="clearSearch()">
+              <mat-icon>search</mat-icon>
+              New Search
+            </button>
+            <button mat-button (click)="clearFilters()" *ngIf="hasActiveFilters()">
+              <mat-icon>clear_all</mat-icon>
+              Clear Filters
+            </button>
+          </div>
         </div>
 
         <!-- Featured Results -->

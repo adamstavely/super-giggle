@@ -1,7 +1,9 @@
 <div class="featured-results-container" *ngIf="results && results.length > 0">
   <div class="featured-header">
-    <mat-icon class="featured-icon">star</mat-icon>
-    <h3 class="featured-title">Featured Results</h3>
+    <button mat-button class="recommend-button" (click)="openRecommendationModal()" aria-label="Recommend a result for this search">
+      <mat-icon>add_circle_outline</mat-icon>
+      <span>Recommend a Result</span>
+    </button>
   </div>
   <div class="featured-results-list">
     <div class="featured-result-item" *ngFor="let result of results">

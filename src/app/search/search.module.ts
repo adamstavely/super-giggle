@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { SearchRoutingModule } from './search-routing.module';
 
 // Material Modules (already imported in AppModule, but re-importing for feature module)
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,10 +37,12 @@ import { ResultItemComponent } from './result-item/result-item.component';
 import { AdvancedSearchComponent } from './advanced-search/advanced-search.component';
 import { HeaderComponent } from './header/header.component';
 import { FeaturedResultsComponent } from './featured-results/featured-results.component';
+import { RecommendationModalComponent } from './featured-results/recommendation-modal.component';
 import { DocumentPreviewComponent } from './document-preview/document-preview.component';
 import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.component';
 import { AccessibilitySettingsComponent } from './accessibility-settings/accessibility-settings.component';
 import { KeyboardShortcutsHelpComponent } from './keyboard-shortcuts-help/keyboard-shortcuts-help.component';
+import { LoadingSkeletonComponent } from './loading-skeleton/loading-skeleton.component';
 
 @NgModule({
   declarations: [
@@ -52,10 +55,12 @@ import { KeyboardShortcutsHelpComponent } from './keyboard-shortcuts-help/keyboa
     AdvancedSearchComponent,
     HeaderComponent,
     FeaturedResultsComponent,
+    RecommendationModalComponent,
     DocumentPreviewComponent,
     QuickViewPanelComponent,
     AccessibilitySettingsComponent,
-    KeyboardShortcutsHelpComponent
+    KeyboardShortcutsHelpComponent,
+    LoadingSkeletonComponent
   ],
   imports: [
     CommonModule,
@@ -63,6 +68,7 @@ import { KeyboardShortcutsHelpComponent } from './keyboard-shortcuts-help/keyboa
     ReactiveFormsModule,
     RouterModule,
     SearchRoutingModule,
+    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatIconModule,

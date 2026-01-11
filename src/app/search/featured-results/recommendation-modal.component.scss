@@ -1,0 +1,99 @@
+.recommendation-modal {
+  min-width: 500px;
+  max-width: 600px;
+
+  h2 {
+    margin: 0 0 16px 0;
+    color: #3b4b7d;
+    font-size: 24px;
+    font-weight: 700;
+
+    :host-context(.dark-theme) & {
+      color: #8a9eff;
+    }
+  }
+
+  .modal-description {
+    margin: 0 0 24px 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+
+    :host-context(.dark-theme) & {
+      color: #9ca3af;
+    }
+  }
+
+  .recommendation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .full-width {
+      width: 100%;
+    }
+
+    mat-form-field {
+      mat-icon[matPrefix] {
+        margin-right: 8px;
+        color: #3b4b7d;
+
+        :host-context(.dark-theme) & {
+          color: #8a9eff;
+        }
+      }
+    }
+
+    .employee-info-section {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(59, 75, 125, 0.2);
+
+      :host-context(.dark-theme) & {
+        border-top-color: rgba(89, 102, 145, 0.3);
+      }
+
+      h3 {
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #3b4b7d;
+
+        :host-context(.dark-theme) & {
+          color: #8a9eff;
+        }
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(59, 75, 125, 0.2);
+
+    :host-context(.dark-theme) & {
+      border-top-color: rgba(89, 102, 145, 0.3);
+    }
+
+    button {
+      margin-left: 8px;
+
+      .inline-spinner {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .recommendation-modal {
+    min-width: 100%;
+    max-width: 100%;
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+}

@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { SearchResult } from '../search.models';
+import { RecommendationModalComponent, RecommendationModalData } from './recommendation-modal.component';
 
 @Component({
   selector: 'app-featured-results',
@@ -9,6 +11,22 @@ import { SearchResult } from '../search.models';
 export class FeaturedResultsComponent {
   @Input() results: SearchResult[] = [];
   @Input() searchQuery: string = '';
+
+  constructor(private dialog: MatDialog) {}
+
+  openRecommendationModal(): void {
+    const data: RecommendationModalData = {
+      searchQuery: this.searchQuery,
+      searchResults: this.results
+    };
+
+    this.dialog.open(RecommendationModalComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: data,
+      disableClose: false
+    });
+  }
 
   getFileTypeIcon(fileType: string): string {
     const iconMap: { [key: string]: string } = {

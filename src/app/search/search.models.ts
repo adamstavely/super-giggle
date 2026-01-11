@@ -154,3 +154,22 @@ export interface CacheEntry<T> {
   accessCount: number;
   lastAccessed: Date;
 }
+
+// Curated Featured Results
+export interface CuratedFeaturedResult {
+  id: string;
+  searchQuery: string; // Query pattern this result should appear for
+  result: SearchResult;
+  priority?: number;
+}
+
+// Featured Result Recommendation
+export interface FeaturedResultRecommendation {
+  searchQuery: string;
+  recommendedResult: SearchResult;
+  reason: string;
+  employeeName: string;
+  employeeEmail: string;
+  employeeDepartment?: string;
+  timestamp: Date;
+}

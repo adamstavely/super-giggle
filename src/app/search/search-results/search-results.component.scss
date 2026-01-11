@@ -198,6 +198,85 @@
 
   .loading-container,
   .error-container {
+    text-align: center;
+    padding: 60px 24px;
+    max-width: 600px;
+    margin: 0 auto;
+
+    .error-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #ef4444;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1d29;
+      margin: 0 0 12px 0;
+    }
+
+    p {
+      font-size: 16px;
+      color: #6b7280;
+      margin: 0 0 24px 0;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+
+      button {
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+
+    .error-details {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+
+      .error-detail-text {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
+      }
+    }
+
+    :host-context(.dark-theme) & {
+      .error-icon {
+        color: #f87171;
+      }
+
+      h2 {
+        color: #e5e7eb;
+      }
+
+      p {
+        color: #9ca3af;
+      }
+
+      .error-details {
+        background: #1f2937;
+        border-color: #374151;
+
+        .error-detail-text {
+          color: #9ca3af;
+        }
+      }
+    }
+  }
+
+  .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -314,6 +393,140 @@
 
               :host-context(.dark-theme) & {
                 border-color: #8a9eff;
+              }
+            }
+          }
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 60px 24px;
+          max-width: 600px;
+          margin: 0 auto;
+
+          .empty-icon {
+            font-size: 64px;
+            width: 64px;
+            height: 64px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+          }
+
+          h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1d29;
+            margin: 0 0 12px 0;
+          }
+
+          p {
+            font-size: 16px;
+            color: #6b7280;
+            margin: 0 0 24px 0;
+          }
+
+          .empty-suggestions {
+            font-size: 16px;
+            color: #6b7280;
+            margin: 0 0 24px 0;
+
+            strong {
+              color: #3b4b7d;
+              cursor: pointer;
+              text-decoration: underline;
+
+              &:hover {
+                color: #2d3c6a;
+              }
+            }
+          }
+
+          .related-searches,
+          .popular-searches {
+            margin: 32px 0;
+            text-align: left;
+
+            h3 {
+              font-size: 16px;
+              font-weight: 600;
+              color: #1a1d29;
+              margin: 0 0 12px 0;
+            }
+
+            .related-search-chips,
+            .popular-search-chips {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+
+              button {
+                font-size: 14px;
+                border-color: #e5e7eb;
+                color: #6b7280;
+
+                &:hover {
+                  background: #f9fafb;
+                  border-color: #3b4b7d;
+                  color: #3b4b7d;
+                }
+              }
+            }
+          }
+
+          .empty-state-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 24px;
+
+            button {
+              mat-icon {
+                margin-right: 8px;
+              }
+            }
+          }
+
+          :host-context(.dark-theme) & {
+            .empty-icon {
+              color: #6b7280;
+            }
+
+            h2 {
+              color: #e5e7eb;
+            }
+
+            p,
+            .empty-suggestions {
+              color: #9ca3af;
+
+              strong {
+                color: #8a9eff;
+
+                &:hover {
+                  color: #6b7fff;
+                }
+              }
+            }
+
+            .related-searches,
+            .popular-searches {
+              h3 {
+                color: #e5e7eb;
+              }
+
+              .related-search-chips,
+              .popular-search-chips {
+                button {
+                  border-color: #374151;
+                  color: #9ca3af;
+
+                  &:hover {
+                    background: #1f2937;
+                    border-color: #8a9eff;
+                    color: #8a9eff;
+                  }
+                }
               }
             }
           }

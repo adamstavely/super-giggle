@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { catchError, retry, map, debounceTime, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
+import { catchError, retry, map, debounceTime, distinctUntilChanged, tap, switchMap, observeOn } from 'rxjs/operators';
+import { asyncScheduler } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   SearchQuery,
@@ -9,7 +10,8 @@ import {
   SearchResult,
   AutocompleteSuggestion,
   SearchHistory,
-  SearchFilters
+  SearchFilters,
+  CuratedFeaturedResult
 } from './search.models';
 import { CacheService } from '../core/services/cache.service';
 
@@ -785,6 +787,164 @@ export class SearchService {
     }
 
     return snippet;
+  }
+
+  /**
+   * Get curated featured results for a search query
+   */
+  getCuratedFeaturedResults(query: string): Observable<SearchResult[]> {
+    if (!query || !query.trim()) {
+      return of([]);
+    }
+
+    // Mock curated featured results - in production, this would call an API
+    const curatedResults: CuratedFeaturedResult[] = [
+      {
+        id: 'curated-1',
+        searchQuery: 'benefits',
+        result: {
+          id: 'featured-1',
+          title: 'Employee Benefits Portal - Quick Access',
+          snippet: 'Access your health insurance, dental, vision, and retirement benefits all in one place. Update your selections, view coverage details, and find answers to common questions.',
+          source: 'Benefits Portal',
+          author: 'Benefits Team',
+          lastModified: new Date('2024-03-10'),
+          fileType: 'HTML',
+          url: '/benefits/portal',
+          breadcrumb: ['Benefits', 'Portal'],
+          highlightedTerms: ['benefits', 'portal']
+        },
+        priority: 1
+      },
+      {
+        id: 'curated-2',
+        searchQuery: 'it support',
+        result: {
+          id: 'featured-2',
+          title: 'IT Help Desk - Get Support Now',
+          snippet: 'Need technical assistance? Submit a ticket, chat with support, or browse our knowledge base. Average response time: 15 minutes during business hours.',
+          source: 'IT Services',
+          author: 'IT Department',
+          lastModified: new Date('2024-03-12'),
+          fileType: 'HTML',
+          url: '/it/helpdesk',
+          breadcrumb: ['IT', 'Support'],
+          highlightedTerms: ['IT', 'support', 'help']
+        },
+        priority: 1
+      },
+      {
+        id: 'curated-3',
+        searchQuery: 'directory',
+        result: {
+          id: 'featured-3',
+          title: 'Company Directory - Find Colleagues',
+          snippet: 'Search for employees by name, department, or location. View contact information, office locations, and organizational structure. Updated daily.',
+          source: 'HR System',
+          author: 'HR Department',
+          lastModified: new Date('2024-03-15'),
+          fileType: 'HTML',
+          url: '/directory',
+          breadcrumb: ['Company', 'Directory'],
+          highlightedTerms: ['directory', 'employees', 'colleagues']
+        },
+        priority: 1
+      },
+      {
+        id: 'curated-4',
+        searchQuery: 'holiday',
+        result: {
+          id: 'featured-4',
+          title: 'Holiday Schedule 2024',
+          snippet: 'View the complete holiday calendar for 2024. Includes all company holidays, floating holidays, and important dates to remember.',
+          source: 'HR System',
+          author: 'HR Department',
+          lastModified: new Date('2024-01-01'),
+          fileType: 'HTML',
+          url: '/holidays/2024',
+          breadcrumb: ['HR', 'Holidays'],
+          highlightedTerms: ['holiday', 'schedule']
+        },
+        priority: 1
+      },
+      {
+        id: 'curated-5',
+        searchQuery: 'remote work',
+        result: {
+          id: 'featured-5',
+          title: 'Remote Work Policy and Guidelines',
+          snippet: 'Complete guide to remote work policies, equipment requirements, communication expectations, and best practices for working from home.',
+          source: 'HR System',
+          author: 'HR Department',
+          lastModified: new Date('2024-02-15'),
+          fileType: 'PDF',
+          url: '/policies/remote-work',
+          breadcrumb: ['HR', 'Policies'],
+          highlightedTerms: ['remote', 'work', 'policy']
+        },
+        priority: 1
+      },
+      {
+        id: 'curated-6',
+        searchQuery: 'employee',
+        result: {
+          id: 'featured-6',
+          title: 'Employee Handbook 2024',
+          snippet: 'The complete employee handbook covering company policies, procedures, benefits, and code of conduct. Essential reading for all employees.',
+          source: 'HR System',
+          author: 'HR Department',
+          lastModified: new Date('2024-01-15'),
+          fileType: 'PDF',
+          url: '/documents/employee-handbook-2024.pdf',
+          breadcrumb: ['Company Resources', 'HR Documents', 'Employee Handbook'],
+          highlightedTerms: ['employee', 'handbook']
+        },
+        priority: 1
+      }
+    ];
+
+    const queryLower = query.toLowerCase().trim();
+    const queryTerms = queryLower.split(/\s+/).filter(term => term.length > 0);
+    
+    // Match curated results - check if query contains the searchQuery pattern or vice versa
+    const matchingResults = curatedResults
+      .filter(curated => {
+        const curatedQueryLower = curated.searchQuery.toLowerCase().trim();
+        const curatedTerms = curatedQueryLower.split(/\s+/).filter(term => term.length > 0);
+        
+        // Exact match
+        if (queryLower === curatedQueryLower) {
+          return true;
+        }
+        
+        // Check if query contains curated query or vice versa
+        if (queryLower.includes(curatedQueryLower) || curatedQueryLower.includes(queryLower)) {
+          return true;
+        }
+        
+        // Check if any query term matches any curated term
+        if (queryTerms.some(term => curatedTerms.some(ct => ct.includes(term) || term.includes(ct)))) {
+          return true;
+        }
+        
+        // Check if any curated term matches any query term
+        if (curatedTerms.some(ct => queryTerms.some(term => term.includes(ct) || ct.includes(term)))) {
+          return true;
+        }
+        
+        return false;
+      })
+      .sort((a, b) => (a.priority || 0) - (b.priority || 0))
+      .map(curated => curated.result);
+
+    // For now, return mock data; in production, this would be:
+    // return this.http.get<SearchResult[]>(`${this.apiUrl}/featured-results`, { 
+    //   params: new HttpParams().set('query', query) 
+    // });
+
+    // Use asyncScheduler to ensure the Observable completes in the next tick,
+    // which helps with change detection
+    return of(matchingResults).pipe(observeOn(asyncScheduler));
   }
 
   /**

@@ -1,0 +1,109 @@
+<div class="recommendation-modal">
+  <h2 mat-dialog-title>Recommend a Featured Result</h2>
+  
+  <mat-dialog-content>
+    <p class="modal-description">
+      Help improve search results by recommending content that should appear as a featured result for this search query.
+    </p>
+
+    <form [formGroup]="recommendationForm" class="recommendation-form">
+      <!-- Search Query (read-only) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Search Query</mat-label>
+        <input matInput [value]="searchQuery" readonly>
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Result Selection (if search results available) -->
+      <mat-form-field appearance="outline" class="full-width" *ngIf="searchResults.length > 0">
+        <mat-label>Select from Search Results (Optional)</mat-label>
+        <mat-select (selectionChange)="onResultSelectChange($event)" [value]="selectedResult?.id || ''">
+          <mat-option value="">-- Manually enter details --</mat-option>
+          <mat-option *ngFor="let result of searchResults" [value]="result.id">
+            {{ result.title }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>list</mat-icon>
+        <mat-hint>Select a result to auto-fill, or enter details manually below</mat-hint>
+      </mat-form-field>
+
+      <!-- Result Title -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Result Title</mat-label>
+        <input matInput formControlName="resultTitle" placeholder="Enter the title of the result">
+        <mat-icon matPrefix>title</mat-icon>
+        <mat-error *ngIf="recommendationForm.get('resultTitle')?.hasError('required')">
+          {{ getErrorMessage('resultTitle') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Result URL -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Result URL</mat-label>
+        <input matInput formControlName="resultUrl" placeholder="https://example.com/page">
+        <mat-icon matPrefix>link</mat-icon>
+        <mat-error *ngIf="recommendationForm.get('resultUrl')?.invalid && recommendationForm.get('resultUrl')?.touched">
+          {{ getErrorMessage('resultUrl') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Reason for Recommendation -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Reason for Recommendation</mat-label>
+        <textarea 
+          matInput 
+          formControlName="reason" 
+          placeholder="Explain why this result should be featured for this search query..."
+          rows="4">
+        </textarea>
+        <mat-icon matPrefix>description</mat-icon>
+        <mat-hint>Please provide at least 10 characters explaining why this should be featured</mat-hint>
+        <mat-error *ngIf="recommendationForm.get('reason')?.invalid && recommendationForm.get('reason')?.touched">
+          {{ getErrorMessage('reason') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Employee Information Section -->
+      <div class="employee-info-section">
+        <h3>Your Information</h3>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Name</mat-label>
+          <input matInput formControlName="employeeName" placeholder="John Doe">
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="recommendationForm.get('employeeName')?.hasError('required')">
+            {{ getErrorMessage('employeeName') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Email</mat-label>
+          <input matInput type="email" formControlName="employeeEmail" placeholder="john.doe@company.com">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="recommendationForm.get('employeeEmail')?.invalid && recommendationForm.get('employeeEmail')?.touched">
+            {{ getErrorMessage('employeeEmail') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Department (Optional)</mat-label>
+          <input matInput formControlName="employeeDepartment" placeholder="Engineering, Marketing, etc.">
+          <mat-icon matPrefix>business</mat-icon>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading">Cancel</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()" 
+      [disabled]="loading || recommendationForm.invalid">
+      <mat-spinner diameter="20" *ngIf="loading" class="inline-spinner" mode="indeterminate"></mat-spinner>
+      <span *ngIf="!loading">Submit Recommendation</span>
+      <span *ngIf="loading">Submitting...</span>
+    </button>
+  </mat-dialog-actions>
+</div>
