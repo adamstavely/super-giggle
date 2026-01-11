@@ -75,3 +75,82 @@ export interface DateRange {
   start: Date | null;
   end: Date | null;
 }
+
+// AI Answer Models
+export interface AIAnswer {
+  answer: string;
+  confidence: number;
+  sources: string[];
+  query: string;
+}
+
+// Query Processing Models
+export interface SpellCorrection {
+  original: string;
+  corrected: string;
+  suggestions: string[];
+  confidence: number;
+}
+
+export interface QueryExpansion {
+  original: string;
+  expanded: string;
+  addedTerms: string[];
+  removedTerms: string[];
+}
+
+export type SearchIntent = 'question' | 'person_search' | 'factual_query' | 'navigational' | 'exploratory';
+
+// Saved Search Templates
+export interface SavedSearchTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  query: SearchQuery;
+  created: Date;
+  lastUsed?: Date;
+  isPublic?: boolean;
+  category?: string;
+}
+
+// Document Metadata
+export interface DocumentMetadata {
+  fileSize?: number;
+  wordCount?: number;
+  readingTime?: number; // in minutes
+  pageCount?: number;
+  language?: string;
+  dimensions?: {
+    width?: number;
+    height?: number;
+  };
+}
+
+// Shareable Search Links
+export interface ShareableSearchLink {
+  url: string;
+  query: string;
+  filters?: SearchFilters;
+  expiresAt?: Date;
+  createdAt: Date;
+}
+
+// Search State (for undo/redo)
+export interface SearchState {
+  query: string;
+  filters?: SearchFilters;
+  sort?: SortOption;
+  page: number;
+  pageSize: number;
+  timestamp: Date;
+}
+
+// Cache Entry
+export interface CacheEntry<T> {
+  key: string;
+  data: T;
+  timestamp: Date;
+  expiresAt: Date;
+  accessCount: number;
+  lastAccessed: Date;
+}
