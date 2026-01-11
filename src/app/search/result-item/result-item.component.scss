@@ -233,6 +233,18 @@
   .result-thumbnail-enhanced {
     margin: 12px 0;
     text-align: center;
+    position: relative;
+    min-height: 200px;
+
+    .thumbnail-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
 
     img {
       max-width: 100%;
@@ -242,6 +254,15 @@
       border: 1px solid #e5e7eb;
       transition: all 0.2s;
       cursor: pointer;
+      opacity: 0;
+
+      &.loaded {
+        opacity: 1;
+      }
+
+      &.lazy-load {
+        display: none;
+      }
 
       :host-context(.dark-theme) & {
         border-color: #374151;

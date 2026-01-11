@@ -45,10 +45,34 @@
       </div>
     </div>
 
-    <!-- Enhanced Thumbnail -->
+    <!-- Enhanced Thumbnail with Lazy Loading -->
     <div *ngIf="result.thumbnail" class="result-thumbnail-enhanced">
-      <img [src]="result.thumbnail" [alt]="result.title" (click)="onOpenQuickView()" *ngIf="supportsPreview" />
-      <img [src]="result.thumbnail" [alt]="result.title" *ngIf="!supportsPreview" />
+      <div class="thumbnail-placeholder" *ngIf="!imageLoaded && !imageInView">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+      <img 
+        #thumbnailImage
+        [src]="imageInView ? result.thumbnail : ''" 
+        [alt]="result.title" 
+        (click)="onOpenQuickView()" 
+        (load)="onImageLoad()"
+        (error)="onImageError()"
+        [class.loaded]="imageLoaded"
+        [class.lazy-load]="!imageInView"
+        *ngIf="supportsPreview" 
+        loading="lazy"
+      />
+      <img 
+        #thumbnailImage
+        [src]="imageInView ? result.thumbnail : ''" 
+        [alt]="result.title" 
+        (load)="onImageLoad()"
+        (error)="onImageError()"
+        [class.loaded]="imageLoaded"
+        [class.lazy-load]="!imageInView"
+        *ngIf="!supportsPreview" 
+        loading="lazy"
+      />
     </div>
 
     <!-- Enhanced Snippet with highlighting -->

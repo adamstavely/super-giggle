@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { SearchResult, DocumentMetadata } from '../search.models';
 import { DocumentMetadataService } from '../../core/services/document-metadata.service';
 import { DocumentPreviewService } from '../../core/services/document-preview.service';
@@ -10,7 +10,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './result-item.component.html',
   styleUrls: ['./result-item.component.scss']
 })
-export class ResultItemComponent implements OnInit, OnDestroy {
+export class ResultItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() result!: SearchResult;
   @Input() searchQuery: string = '';
   @Output() openQuickView = new EventEmitter<SearchResult>();
@@ -24,8 +24,13 @@ export class ResultItemComponent implements OnInit, OnDestroy {
   documentMetadata: DocumentMetadata | null = null;
   loadingMetadata = false;
   supportsPreview = false;
+  imageLoaded = false;
+  imageInView = false;
+  
+  @ViewChild('thumbnailImage', { static: false }) thumbnailImage!: ElementRef<HTMLImageElement>;
   
   private destroy$ = new Subject<void>();
+  private intersectionObserver?: IntersectionObserver;
   
   onHelpfulClick(): void {
     this.helpfulClicked = true;
@@ -64,11 +69,78 @@ export class ResultItemComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkPreviewSupport();
     this.loadMetadata();
+    // Initialize lazy loading observer
+    this.setupLazyLoading();
+  }
+
+  ngAfterViewInit(): void {
+    // Start observing image when view is initialized
+    if (this.thumbnailImage && this.result.thumbnail) {
+      this.observeImage();
+    }
   }
 
   ngOnDestroy(): void {
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Setup Intersection Observer for lazy loading
+   */
+  private setupLazyLoading(): void {
+    if (typeof IntersectionObserver === 'undefined') {
+      // Fallback for browsers without IntersectionObserver
+      this.imageInView = true;
+      return;
+    }
+
+    // Observer will be created in ngAfterViewInit when element is available
+  }
+
+  /**
+   * Observe image element for lazy loading
+   */
+  private observeImage(): void {
+    if (!this.thumbnailImage || !this.result.thumbnail) {
+      return;
+    }
+
+    const options = {
+      root: null,
+      rootMargin: '100px', // Start loading 100px before image enters viewport
+      threshold: 0.01
+    };
+
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.imageInView = true;
+          if (this.intersectionObserver) {
+            this.intersectionObserver.unobserve(entry.target);
+          }
+        }
+      });
+    }, options);
+
+    this.intersectionObserver.observe(this.thumbnailImage.nativeElement);
+  }
+
+  /**
+   * Handle image load event
+   */
+  onImageLoad(): void {
+    this.imageLoaded = true;
+  }
+
+  /**
+   * Handle image error
+   */
+  onImageError(): void {
+    this.imageLoaded = false;
   }
 
   checkPreviewSupport(): void {

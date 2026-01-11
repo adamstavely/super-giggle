@@ -1,5 +1,5 @@
 <app-search-header></app-search-header>
-<div class="search-results-container" #resultsContainer role="main" aria-label="Search results">
+<div class="search-results-container" role="main" aria-label="Search results">
   <!-- Search Bar with Controls -->
   <div class="search-bar-wrapper" *ngIf="searchResponse && !loading && !error">
     <div class="search-bar-row">
@@ -52,6 +52,10 @@
         </span>
         <span class="search-time" *ngIf="searchResponse.searchTime">
           ({{ searchResponse.searchTime | number:'1.2-2' }}ms)
+        </span>
+        <span class="updating-indicator" *ngIf="isUpdating" aria-live="polite">
+          <mat-icon class="updating-icon">sync</mat-icon>
+          <span>Updating...</span>
         </span>
       </div>
       <div class="advanced-search-link-wrapper">

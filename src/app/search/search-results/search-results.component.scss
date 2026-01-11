@@ -117,10 +117,35 @@
           margin-left: 8px;
           font-weight: 400;
           transition: color 0.3s ease;
+        }
+
+        .updating-indicator {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          color: #3b4b7d;
+          font-size: 12px;
+          margin-left: 8px;
+
+          .updating-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+          }
 
           :host-context(.dark-theme) & {
-            color: #9ca3af;
+            color: #8a9eff;
           }
+        }
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
         }
       }
 

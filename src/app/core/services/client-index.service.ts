@@ -172,26 +172,38 @@ export class ClientIndexService {
     // Find results matching all terms (AND logic)
     let matchingIndices: Set<number> | null = null;
 
-    queryTerms.forEach(term => {
+    if (!this.indexedResults) {
+      return of([]);
+    }
+
+    for (const term of queryTerms) {
       const termIndices = this.indexedResults.index.get(term);
       if (termIndices) {
         if (matchingIndices === null) {
-          matchingIndices = new Set(termIndices);
+          matchingIndices = new Set<number>(termIndices);
         } else {
           matchingIndices = this.intersect(matchingIndices, termIndices);
         }
       } else {
         // If any term doesn't match, return empty
-        matchingIndices = new Set();
+        matchingIndices = new Set<number>();
+        break;
       }
-    });
+    }
 
-    if (matchingIndices === null || matchingIndices.size === 0) {
+    if (matchingIndices === null) {
       return of([]);
     }
 
-    const results = Array.from(matchingIndices)
-      .map(idx => this.indexedResults!.results[idx]);
+    if (matchingIndices.size === 0) {
+      return of([]);
+    }
+
+    // At this point, matchingIndices is definitely Set<number>
+    const indicesArray: number[] = Array.from(matchingIndices);
+    const results: SearchResult[] = indicesArray.map((idx: number) => {
+      return this.indexedResults!.results[idx];
+    });
 
     return of(results);
   }

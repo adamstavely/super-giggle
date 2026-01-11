@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { catchError, retry, map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { catchError, retry, map, debounceTime, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {
   SearchQuery,
@@ -11,6 +11,7 @@ import {
   SearchHistory,
   SearchFilters
 } from './search.models';
+import { CacheService } from '../core/services/cache.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,13 +21,48 @@ export class SearchService {
   private readonly searchHistoryKey = 'intranet_search_history';
   private readonly maxHistoryItems = 20;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cacheService: CacheService
+  ) {}
 
   /**
-   * Main search method
+   * Main search method with caching
    */
   search(query: SearchQuery): Observable<SearchResponse> {
+    // Generate cache key
+    const cacheKey = this.cacheService.generateSearchKey(
+      query.query || '',
+      query.filters,
+      query.sort,
+      query.page,
+      query.pageSize
+    );
+
+    // Check cache first
+    return this.cacheService.get<SearchResponse>(cacheKey).pipe(
+      switchMap(cachedResponse => {
+        if (cachedResponse) {
+          // Return cached response immediately (optimistic UI)
+          return of(cachedResponse);
+        }
+
+        // Cache miss - perform search
+        return this.performSearch(query, cacheKey);
+      })
+    );
+  }
+
+  /**
+   * Perform actual search (API call or mock)
+   */
+  private performSearch(query: SearchQuery, cacheKey: string): Observable<SearchResponse> {
+    // For now, use mock data
     const results = this.generateMockSearchResults(query);
+    
+    // Store in cache
+    this.cacheService.set(cacheKey, results);
+    
     return of(results);
     
     // Original API call (commented out for mock data):
@@ -34,8 +70,26 @@ export class SearchService {
     // return this.http.post<SearchResponse>(`${this.apiUrl}/search`, query, { params })
     //   .pipe(
     //     retry(2),
+    //     tap(response => {
+    //       // Store successful response in cache
+    //       this.cacheService.set(cacheKey, response);
+    //     }),
     //     catchError(this.handleError)
     //   );
+  }
+
+  /**
+   * Invalidate cache for a specific query pattern
+   */
+  invalidateCache(queryPattern?: string): void {
+    if (queryPattern) {
+      // Invalidate specific cache entries matching pattern
+      // This is a simplified version - in production, you'd want more sophisticated invalidation
+      this.cacheService.clear();
+    } else {
+      // Clear all cache
+      this.cacheService.clear();
+    }
   }
 
   /**

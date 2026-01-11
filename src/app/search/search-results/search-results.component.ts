@@ -1,20 +1,24 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
 import { SearchService } from '../search.service';
 import { SearchResponse, SearchQuery, SortOption, SearchFilters, ContentType, SearchResult } from '../search.models';
-import { MobileGesturesService } from '../../core/services/mobile-gestures.service';
+import { PrefetchService } from '../../core/services/prefetch.service';
+import { ClientIndexService } from '../../core/services/client-index.service';
+import { CacheService } from '../../core/services/cache.service';
 
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss']
 })
-export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SearchResultsComponent implements OnInit, OnDestroy {
   searchResponse: SearchResponse | null = null;
   loading = false;
   error: string | null = null;
+  isUpdating = false; // For optimistic UI updates
+  cachedResponse: SearchResponse | null = null; // For optimistic UI
   currentQuery = '';
   currentSort: SortOption = 'relevance';
   currentPage = 1;
@@ -29,7 +33,6 @@ export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit 
   quickViewResult: SearchResult | null = null;
   quickViewOpen = false;
 
-  @ViewChild('resultsContainer', { static: false }) resultsContainer!: ElementRef<HTMLElement>;
 
   // Cache sort and page size options to avoid creating new arrays on every change detection
   readonly sortOptions: { value: SortOption; label: string }[] = [
@@ -50,7 +53,9 @@ export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit 
     private route: ActivatedRoute,
     private router: Router,
     private searchService: SearchService,
-    private mobileGestures: MobileGesturesService
+    private prefetchService: PrefetchService,
+    private clientIndexService: ClientIndexService,
+    private cacheService: CacheService
   ) {}
 
   ngOnInit(): void {
@@ -102,26 +107,6 @@ export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit 
       });
   }
 
-  ngAfterViewInit(): void {
-    // Setup pull-to-refresh for mobile
-    if (this.resultsContainer) {
-      this.mobileGestures.setupPullToRefresh(
-        this.resultsContainer.nativeElement,
-        () => this.refreshSearch()
-      );
-    }
-
-    // Subscribe to swipe gestures
-    this.mobileGestures.swipe$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(swipe => {
-        if (swipe.direction === 'left' && this.currentPage < this.getTotalPages()) {
-          this.onPageChange(this.currentPage + 1);
-        } else if (swipe.direction === 'right' && this.currentPage > 1) {
-          this.onPageChange(this.currentPage - 1);
-        }
-      });
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -177,12 +162,9 @@ export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     // Prevent duplicate searches
-    if (this.loading) {
+    if (this.loading && !this.cachedResponse) {
       return;
     }
-
-    this.loading = true;
-    this.error = null;
 
     // Get filters from query params (for advanced search) or filter sidebar
     const queryParams = this.route.snapshot.queryParams;
@@ -217,19 +199,126 @@ export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit 
       filters: Object.keys(filters).length > 0 ? filters : undefined
     };
 
+    // Check cache first for optimistic UI
+    const cacheKey = this.cacheService.generateSearchKey(
+      this.currentQuery,
+      filters,
+      this.currentSort,
+      this.currentPage,
+      this.pageSize
+    );
+
+    this.cacheService.get<SearchResponse>(cacheKey)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cachedResponse => {
+        if (cachedResponse) {
+          // Show cached results immediately (optimistic UI)
+          this.searchResponse = cachedResponse;
+          this.cachedResponse = cachedResponse;
+          this.isUpdating = true; // Show updating indicator
+          
+          // Index results for client-side operations
+          this.clientIndexService.indexResults(cachedResponse.results);
+        } else {
+          // No cache, show loading
+          this.loading = true;
+        }
+      });
+
+    this.error = null;
+
+    // Perform actual search (will update cache and refresh)
     this.searchService.search(searchQuery)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.searchResponse = response;
+          this.cachedResponse = null;
           this.loading = false;
+          this.isUpdating = false;
+          
+          // Index results for client-side operations
+          this.clientIndexService.indexResults(response.results);
+          
+          // Prefetch next page if applicable
+          this.prefetchNextPage(searchQuery, response);
         },
         error: (err) => {
-          this.error = 'An error occurred while searching. Please try again.';
+          // On error, keep cached response if available
+          if (this.cachedResponse) {
+            this.searchResponse = this.cachedResponse;
+            this.isUpdating = false;
+            // Show error but don't clear results
+            this.error = 'Unable to refresh results. Showing cached data.';
+          } else {
+            this.error = 'An error occurred while searching. Please try again.';
+            this.searchResponse = null;
+          }
           this.loading = false;
           console.error('Search error:', err);
         }
       });
+  }
+
+  /**
+   * Prefetch next page if user is near bottom
+   */
+  private prefetchNextPage(query: SearchQuery, response: SearchResponse): void {
+    if (this.currentPage < response.totalPages) {
+      this.prefetchService.prefetchNextPage(query).subscribe({
+        next: (prefetchedResponse) => {
+          if (prefetchedResponse) {
+            // Prefetched results are now in cache, ready for instant loading
+            console.log('Next page prefetched');
+          }
+        }
+      });
+    }
+  }
+
+  /**
+   * Handle scroll for prefetching
+   */
+  @HostListener('window:scroll', ['$event'])
+  onScroll(): void {
+    if (!this.searchResponse || this.loading) {
+      return;
+    }
+
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+    
+    const queryParams = this.route.snapshot.queryParams;
+    const filters: SearchFilters = {};
+    
+    if (queryParams['fileFormats']) {
+      filters.fileFormats = Array.isArray(queryParams['fileFormats']) 
+        ? queryParams['fileFormats'] 
+        : queryParams['fileFormats'].split(',');
+    }
+    
+    if (queryParams['contentTypes']) {
+      filters.contentTypes = Array.isArray(queryParams['contentTypes']) 
+        ? queryParams['contentTypes'] 
+        : queryParams['contentTypes'].split(',');
+    }
+    
+    const searchQuery: SearchQuery = {
+      query: this.currentQuery,
+      sort: this.currentSort,
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      filters: Object.keys(filters).length > 0 ? filters : undefined
+    };
+
+    if (this.prefetchService.shouldPrefetch(
+      this.currentPage,
+      this.searchResponse.totalPages,
+      scrollPosition,
+      pageHeight
+    )) {
+      this.prefetchService.prefetchNextPage(searchQuery).subscribe();
+    }
   }
 
   private navigateToResults(): void {
@@ -277,11 +366,65 @@ export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit 
       return [];
     }
 
-    if (this.selectedTab === 'all') {
-      return this.searchResponse.results;
+    // Use client-side indexing for fast filtering if available
+    let results = this.searchResponse.results;
+
+    // Apply client-side filtering if filters are active
+    const queryParams = this.route.snapshot.queryParams;
+    const hasFilters = queryParams['fileFormats'] || queryParams['contentTypes'] || 
+                      queryParams['dateFrom'] || queryParams['dateTo'] ||
+                      queryParams['departments'] || queryParams['authors'] ||
+                      queryParams['sourceSystems'];
+
+    if (hasFilters) {
+      const filters: SearchFilters = {};
+      
+      if (queryParams['fileFormats']) {
+        filters.fileFormats = Array.isArray(queryParams['fileFormats'])
+          ? queryParams['fileFormats']
+          : queryParams['fileFormats'].split(',');
+      }
+      
+      if (queryParams['contentTypes']) {
+        filters.contentTypes = Array.isArray(queryParams['contentTypes'])
+          ? queryParams['contentTypes'] 
+          : queryParams['contentTypes'].split(',');
+      }
+      
+      if (queryParams['dateFrom']) {
+        filters.dateFrom = new Date(queryParams['dateFrom']);
+      }
+      
+      if (queryParams['dateTo']) {
+        filters.dateTo = new Date(queryParams['dateTo']);
+      }
+      
+      if (queryParams['sourceSystems']) {
+        filters.sourceSystems = Array.isArray(queryParams['sourceSystems'])
+          ? queryParams['sourceSystems']
+          : queryParams['sourceSystems'].split(',');
+      }
+      
+      if (queryParams['authors']) {
+        filters.authors = Array.isArray(queryParams['authors'])
+          ? queryParams['authors']
+          : queryParams['authors'].split(',');
+      }
+
+      // Use client-side indexing for fast filtering
+      this.clientIndexService.filterResults(filters).subscribe(filtered => {
+        if (filtered.length > 0) {
+          results = filtered;
+        }
+      });
     }
 
-    return this.searchResponse.results.filter(result => {
+    // Apply content type filter
+    if (this.selectedTab === 'all') {
+      return results;
+    }
+
+    return results.filter(result => {
       // If result has contentType, use it; otherwise infer from fileType
       if (result.contentType) {
         return result.contentType === this.selectedTab;
