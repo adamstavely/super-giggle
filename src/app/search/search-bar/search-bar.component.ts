@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil, switchMap } from 'rxjs/operators';
 import { SearchService } from '../search.service';
-import { AutocompleteSuggestion, SearchHistory } from '../search.models';
+import { QueryProcessingService } from '../../core/services/query-processing.service';
+import { AutocompleteSuggestion, SearchHistory, SpellCorrection, QueryExpansion } from '../search.models';
 
 @Component({
   selector: 'app-search-bar',
@@ -28,17 +29,30 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   autocompleteSuggestions: AutocompleteSuggestion[] = [];
   searchHistory: SearchHistory[] = [];
   selectedSuggestionIndex = -1;
+  
+  // Spell correction
+  spellCorrection: SpellCorrection | null = null;
+  showSpellCorrection = false;
+  
+  // Query expansion
+  queryExpansion: QueryExpansion | null = null;
+  useExpandedQuery = false;
+  showExpansionToggle = false;
+  
   private querySubject = new Subject<string>();
   private destroy$ = new Subject<void>();
 
-  constructor(private searchService: SearchService) {}
+  constructor(
+    private searchService: SearchService,
+    private queryProcessingService: QueryProcessingService
+  ) {}
 
   ngOnInit(): void {
     if (this.initialQuery) {
       this.searchControl.setValue(this.initialQuery);
     }
 
-    // Subscribe to query changes for autocomplete
+    // Subscribe to query changes for autocomplete, spell correction, and query expansion
     this.querySubject.pipe(
       debounceTime(200),
       distinctUntilChanged(),
@@ -46,9 +60,15 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     ).subscribe(query => {
       if (query && query.length >= 3) {
         this.loadAutocompleteSuggestions(query);
+        this.checkSpelling(query);
+        this.checkQueryExpansion(query);
       } else {
         this.autocompleteSuggestions = [];
         this.showAutocomplete = false;
+        this.spellCorrection = null;
+        this.showSpellCorrection = false;
+        this.queryExpansion = null;
+        this.showExpansionToggle = false;
       }
     });
 
@@ -127,12 +147,25 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   }
 
   performSearch(): void {
-    const query = this.searchControl.value?.trim() || '';
+    let query = this.searchControl.value?.trim() || '';
+    
+    // Use expanded query if enabled
+    if (this.useExpandedQuery && this.queryExpansion) {
+      query = this.queryExpansion.expanded;
+    }
+    
+    // Use corrected query if spell correction is available and user hasn't manually edited
+    if (this.spellCorrection && this.showSpellCorrection && query === this.spellCorrection.original) {
+      query = this.spellCorrection.corrected;
+    }
+    
     if (query) {
       this.searchService.saveSearchHistory(query);
       this.search.emit(query);
       this.showAutocomplete = false;
       this.showHistoryDropdown = false;
+      this.showSpellCorrection = false;
+      this.showExpansionToggle = false;
     }
   }
 
@@ -192,5 +225,84 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     }
     const regex = new RegExp(`(${query})`, 'gi');
     return text.replace(regex, '<span class="highlight">$1</span>');
+  }
+
+  /**
+   * Check spelling and show corrections
+   */
+  private checkSpelling(query: string): void {
+    this.queryProcessingService.checkSpelling(query)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(correction => {
+        this.spellCorrection = correction;
+        this.showSpellCorrection = !!correction && correction.confidence > 0.7;
+      });
+  }
+
+  /**
+   * Check if query can be expanded
+   */
+  private checkQueryExpansion(query: string): void {
+    this.queryProcessingService.expandQuery(query)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(expansion => {
+        this.queryExpansion = expansion;
+        // Show expansion toggle if there are added terms
+        this.showExpansionToggle = expansion.addedTerms.length > 0;
+      });
+  }
+
+  /**
+   * Apply spell correction
+   */
+  applySpellCorrection(): void {
+    if (this.spellCorrection) {
+      this.searchControl.setValue(this.spellCorrection.corrected);
+      this.showSpellCorrection = false;
+      // Trigger search automatically after correction
+      setTimeout(() => this.performSearch(), 100);
+    }
+  }
+
+  /**
+   * Dismiss spell correction
+   */
+  dismissSpellCorrection(): void {
+    this.showSpellCorrection = false;
+  }
+
+  /**
+   * Toggle query expansion
+   */
+  toggleQueryExpansion(): void {
+    this.useExpandedQuery = !this.useExpandedQuery;
+  }
+
+  /**
+   * Get misspelled words from query
+   */
+  getMisspelledWords(): string[] {
+    if (!this.spellCorrection || !this.searchControl.value) {
+      return [];
+    }
+    
+    const originalWords = this.spellCorrection.original.split(/\s+/);
+    const correctedWords = this.spellCorrection.corrected.split(/\s+/);
+    const misspelled: string[] = [];
+    
+    originalWords.forEach((word, index) => {
+      if (correctedWords[index] && word.toLowerCase() !== correctedWords[index].toLowerCase()) {
+        misspelled.push(word);
+      }
+    });
+    
+    return misspelled;
+  }
+
+  /**
+   * Check if a word is misspelled
+   */
+  isMisspelled(word: string): boolean {
+    return this.getMisspelledWords().includes(word);
   }
 }

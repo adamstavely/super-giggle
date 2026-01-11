@@ -33,6 +33,62 @@
       </button>
     </mat-form-field>
 
+    <!-- Spell Correction Banner -->
+    <div
+      *ngIf="showSpellCorrection && spellCorrection"
+      class="spell-correction-banner"
+      role="alert"
+      aria-live="polite"
+    >
+      <mat-icon class="spell-icon">spellcheck</mat-icon>
+      <span class="spell-text">
+        Did you mean: <strong>{{ spellCorrection.corrected }}</strong>?
+      </span>
+      <button
+        mat-button
+        class="spell-button"
+        (click)="applySpellCorrection()"
+        aria-label="Apply spell correction"
+      >
+        Apply
+      </button>
+      <button
+        mat-icon-button
+        class="spell-dismiss"
+        (click)="dismissSpellCorrection()"
+        aria-label="Dismiss spell correction"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Query Expansion Toggle -->
+    <div
+      *ngIf="showExpansionToggle && queryExpansion && queryExpansion.addedTerms.length > 0"
+      class="query-expansion-banner"
+      role="region"
+      aria-label="Query expansion options"
+    >
+      <mat-icon class="expansion-icon">auto_awesome</mat-icon>
+      <span class="expansion-text">
+        <span *ngIf="!useExpandedQuery">
+          Expand search to include: <strong>{{ queryExpansion.addedTerms.join(', ') }}</strong>
+        </span>
+        <span *ngIf="useExpandedQuery">
+          Using expanded query with: <strong>{{ queryExpansion.addedTerms.join(', ') }}</strong>
+        </span>
+      </span>
+      <button
+        mat-button
+        class="expansion-toggle"
+        (click)="toggleQueryExpansion()"
+        [attr.aria-pressed]="useExpandedQuery"
+        aria-label="Toggle query expansion"
+      >
+        {{ useExpandedQuery ? 'Use Original' : 'Expand' }}
+      </button>
+    </div>
+
     <!-- Autocomplete Dropdown -->
     <div
       *ngIf="showAutocomplete && autocompleteSuggestions.length > 0"
