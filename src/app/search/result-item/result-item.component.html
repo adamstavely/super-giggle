@@ -145,37 +145,38 @@
       </div>
     </div>
 
-    <div *ngIf="result.breadcrumb && result.breadcrumb.length > 0" class="result-breadcrumb">
-      <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
-      <span *ngFor="let crumb of result.breadcrumb; let last = last" class="breadcrumb-item">
-        {{ crumb }}<span *ngIf="!last" class="breadcrumb-separator"> / </span>
-      </span>
-    </div>
-
-    <div class="result-feedback">
-      <span class="feedback-label">Was this helpful?</span>
-      <button
-        mat-button
-        class="feedback-button"
-        [class.clicked]="helpfulClicked"
-        (click)="onHelpfulClick()"
-        [disabled]="helpfulClicked || notHelpfulClicked"
-        aria-label="Mark as helpful"
-      >
-        <mat-icon>thumb_up</mat-icon>
-        <span>Yes</span>
-      </button>
-      <button
-        mat-button
-        class="feedback-button"
-        [class.clicked]="notHelpfulClicked"
-        (click)="onNotHelpfulClick()"
-        [disabled]="helpfulClicked || notHelpfulClicked"
-        aria-label="Mark as not helpful"
-      >
-        <mat-icon>thumb_down</mat-icon>
-        <span>No</span>
-      </button>
+    <div class="breadcrumb-feedback-row">
+      <div *ngIf="result.breadcrumb && result.breadcrumb.length > 0" class="result-breadcrumb">
+        <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
+        <span *ngFor="let crumb of result.breadcrumb; let last = last" class="breadcrumb-item">
+          {{ crumb }}<span *ngIf="!last" class="breadcrumb-separator"> / </span>
+        </span>
+      </div>
+      <div class="result-feedback">
+        <span class="feedback-label">Was this helpful?</span>
+        <button
+          mat-button
+          class="feedback-button"
+          [class.clicked]="helpfulClicked"
+          (click)="onHelpfulClick()"
+          [disabled]="helpfulClicked || notHelpfulClicked"
+          aria-label="Mark as helpful"
+        >
+          <mat-icon>thumb_up</mat-icon>
+          <span>Yes</span>
+        </button>
+        <button
+          mat-button
+          class="feedback-button"
+          [class.clicked]="notHelpfulClicked"
+          (click)="onNotHelpfulClick()"
+          [disabled]="helpfulClicked || notHelpfulClicked"
+          aria-label="Mark as not helpful"
+        >
+          <mat-icon>thumb_down</mat-icon>
+          <span>No</span>
+        </button>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>
