@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ThemeService } from './theme.service';
 import { AccessibilityService } from './core/services/accessibility.service';
 import { KeyboardShortcutsService } from './core/services/keyboard-shortcuts.service';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -18,7 +19,8 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public themeService: ThemeService,
     private accessibilityService: AccessibilityService,
-    private keyboardShortcuts: KeyboardShortcutsService
+    private keyboardShortcuts: KeyboardShortcutsService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -64,10 +66,45 @@ export class AppComponent implements OnInit, OnDestroy {
       description: 'Focus search bar',
       context: 'global'
     }).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      const searchInput = document.querySelector('input[type="search"], input[placeholder*="Search"]') as HTMLInputElement;
-      if (searchInput) {
-        searchInput.focus();
-      }
+      this.focusSearchBar();
+    });
+
+    // / key - Focus search bar (when not in input)
+    this.keyboardShortcuts.registerShortcut({
+      key: '/',
+      description: 'Focus search bar',
+      context: 'global'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.focusSearchBar();
+    });
+
+    // ? - Show shortcuts help (global)
+    this.keyboardShortcuts.registerShortcut({
+      key: '?',
+      description: 'Show keyboard shortcuts help',
+      context: 'global'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.showShortcutsHelp();
+    });
+  }
+
+  private focusSearchBar(): void {
+    const searchInput = document.querySelector('input[type="search"], input[placeholder*="Search"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.select();
+    }
+  }
+
+  private showShortcutsHelp(): void {
+    // Import dynamically to avoid circular dependencies
+    import('./search/keyboard-shortcuts-help/keyboard-shortcuts-help.component').then(module => {
+      this.dialog.open(module.KeyboardShortcutsHelpComponent, {
+        width: '600px',
+        maxWidth: '90vw',
+        data: { context: 'global' },
+        ariaLabel: 'Keyboard shortcuts help'
+      });
     });
   }
 }

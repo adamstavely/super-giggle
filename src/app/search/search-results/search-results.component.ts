@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
@@ -7,6 +7,9 @@ import { SearchResponse, SearchQuery, SortOption, SearchFilters, ContentType, Se
 import { PrefetchService } from '../../core/services/prefetch.service';
 import { ClientIndexService } from '../../core/services/client-index.service';
 import { CacheService } from '../../core/services/cache.service';
+import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts.service';
+import { MatDialog } from '@angular/material/dialog';
+import { KeyboardShortcutsHelpComponent } from '../keyboard-shortcuts-help/keyboard-shortcuts-help.component';
 
 @Component({
   selector: 'app-search-results',
@@ -33,6 +36,10 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   quickViewResult: SearchResult | null = null;
   quickViewOpen = false;
 
+  // Keyboard navigation
+  selectedResultIndex = -1;
+  @ViewChildren('resultItem') resultItems!: QueryList<ElementRef>;
+
 
   // Cache sort and page size options to avoid creating new arrays on every change detection
   readonly sortOptions: { value: SortOption; label: string }[] = [
@@ -55,7 +62,9 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private prefetchService: PrefetchService,
     private clientIndexService: ClientIndexService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
+    private keyboardShortcuts: KeyboardShortcutsService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -105,6 +114,9 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
           }
         }
       });
+    
+    // Register keyboard shortcuts for search results
+    this.registerKeyboardShortcuts();
   }
 
 
@@ -583,5 +595,191 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   onBookmarkResult(result: SearchResult): void {
     // TODO: Implement bookmark functionality
     console.log('Bookmark result:', result);
+  }
+
+  /**
+   * Register keyboard shortcuts for search results context
+   */
+  private registerKeyboardShortcuts(): void {
+    // / key - Focus search bar
+    this.keyboardShortcuts.registerShortcut({
+      key: '/',
+      description: 'Focus search bar',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const searchInput = document.querySelector('input[type="search"], input[placeholder*="Search"]') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    });
+
+    // Esc - Clear search / Close modals
+    this.keyboardShortcuts.registerShortcut({
+      key: 'Escape',
+      description: 'Clear search or close modals',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.quickViewOpen) {
+        this.onCloseQuickView();
+      } else if (this.currentQuery) {
+        this.currentQuery = '';
+        this.searchResponse = null;
+        this.selectedResultIndex = -1;
+        this.router.navigate(['/search']);
+      }
+    });
+
+    // Arrow keys - Navigate results
+    this.keyboardShortcuts.registerShortcut({
+      key: 'ArrowDown',
+      description: 'Navigate to next result',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.navigateResults('down');
+    });
+
+    this.keyboardShortcuts.registerShortcut({
+      key: 'ArrowUp',
+      description: 'Navigate to previous result',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.navigateResults('up');
+    });
+
+    // Enter - Open selected result
+    this.keyboardShortcuts.registerShortcut({
+      key: 'Enter',
+      description: 'Open selected result',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.openSelectedResult();
+    });
+
+    // ? - Show shortcuts help
+    this.keyboardShortcuts.registerShortcut({
+      key: '?',
+      description: 'Show keyboard shortcuts help',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.showShortcutsHelp();
+    });
+
+    // Ctrl/Cmd + F - Find in results
+    this.keyboardShortcuts.registerShortcut({
+      key: 'f',
+      ctrl: true,
+      description: 'Find in results',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.focusFindInResults();
+    });
+
+    // Ctrl/Cmd + S - Save search
+    this.keyboardShortcuts.registerShortcut({
+      key: 's',
+      ctrl: true,
+      description: 'Save current search',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.saveCurrentSearch();
+    });
+
+    // Ctrl/Cmd + / - Toggle filters
+    this.keyboardShortcuts.registerShortcut({
+      key: '/',
+      ctrl: true,
+      description: 'Toggle filters sidebar',
+      context: 'search-results'
+    }).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.toggleFilters();
+    });
+  }
+
+  /**
+   * Navigate results with arrow keys
+   */
+  private navigateResults(direction: 'up' | 'down'): void {
+    const results = this.getFilteredResults();
+    if (results.length === 0) {
+      this.selectedResultIndex = -1;
+      return;
+    }
+
+    // Initialize if not set
+    if (this.selectedResultIndex < 0) {
+      this.selectedResultIndex = direction === 'down' ? 0 : results.length - 1;
+    } else if (direction === 'down') {
+      this.selectedResultIndex = Math.min(this.selectedResultIndex + 1, results.length - 1);
+    } else {
+      this.selectedResultIndex = Math.max(this.selectedResultIndex - 1, 0);
+    }
+
+    // Scroll selected result into view and focus it
+    setTimeout(() => {
+      const resultItemsArray = this.resultItems.toArray();
+      if (this.selectedResultIndex >= 0 && this.selectedResultIndex < resultItemsArray.length) {
+        const selectedElement = resultItemsArray[this.selectedResultIndex];
+        if (selectedElement && selectedElement.nativeElement) {
+          selectedElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Make the card focusable and focus it
+          const card = selectedElement.nativeElement.querySelector('mat-card') as HTMLElement;
+          if (card) {
+            card.setAttribute('tabindex', '0');
+            card.focus();
+          }
+        }
+      }
+    }, 0);
+  }
+
+  /**
+   * Open the currently selected result
+   */
+  private openSelectedResult(): void {
+    if (this.selectedResultIndex >= 0) {
+      const results = this.getFilteredResults();
+      if (this.selectedResultIndex < results.length) {
+        const selectedResult = results[this.selectedResultIndex];
+        window.open(selectedResult.url, '_blank');
+      }
+    }
+  }
+
+  /**
+   * Show keyboard shortcuts help dialog
+   */
+  private showShortcutsHelp(): void {
+    this.dialog.open(KeyboardShortcutsHelpComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { context: 'search-results' },
+      ariaLabel: 'Keyboard shortcuts help'
+    });
+  }
+
+  /**
+   * Focus find in results input (if exists) or create one
+   */
+  private focusFindInResults(): void {
+    // For now, just focus the main search bar
+    // In a full implementation, this would open a "Find in results" input
+    const searchInput = document.querySelector('input[type="search"], input[placeholder*="Search"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.focus();
+    }
+  }
+
+  /**
+   * Save current search as template
+   */
+  private saveCurrentSearch(): void {
+    // TODO: Implement save search functionality
+    // This would open a dialog to save the current search query and filters
+    console.log('Save search:', {
+      query: this.currentQuery,
+      filters: this.route.snapshot.queryParams,
+      sort: this.currentSort
+    });
   }
 }

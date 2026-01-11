@@ -88,20 +88,21 @@ export class KeyboardShortcutsService {
   }
 
   /**
-   * Get all registered shortcuts
+   * Get shortcuts for a specific context
+   */
+  getContextShortcuts(context: string): KeyboardShortcut[] {
+    return this.contextShortcuts.get(context) || [];
+  }
+
+  /**
+   * Get all registered shortcuts (optionally filtered by context)
    */
   getAllShortcuts(context?: string): KeyboardShortcut[] {
     if (context) {
       return this.contextShortcuts.get(context) || [];
     }
-    return [...this.globalShortcuts, ...Array.from(this.contextShortcuts.values()).flat()];
-  }
-
-  /**
-   * Get shortcuts for a specific context
-   */
-  getContextShortcuts(context: string): KeyboardShortcut[] {
-    return this.contextShortcuts.get(context) || [];
+    // Return all shortcuts from descriptions map
+    return Array.from(this.shortcutDescriptions.values());
   }
 
   /**
@@ -111,11 +112,21 @@ export class KeyboardShortcutsService {
     document.addEventListener('keydown', (event: KeyboardEvent) => {
       // Don't trigger shortcuts when user is typing in input fields
       const target = event.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
+      const isInputField = target.tagName === 'INPUT' || 
+                          target.tagName === 'TEXTAREA' || 
+                          target.isContentEditable;
+      
+      // Special handling for / key - only trigger if not in input
+      if (event.key === '/' && isInputField) {
+        return;
+      }
+
+      // Special handling for ? key - only trigger if not in input
+      if (event.key === '?' && isInputField) {
+        return;
+      }
+
+      if (isInputField) {
         // Allow shortcuts with Ctrl/Cmd even in input fields
         if (!event.ctrlKey && !event.metaKey) {
           return;
@@ -123,7 +134,7 @@ export class KeyboardShortcutsService {
       }
 
       const shortcut: KeyboardShortcut = {
-        key: event.key.toLowerCase(),
+        key: event.key,
         ctrl: event.ctrlKey,
         shift: event.shiftKey,
         alt: event.altKey,
@@ -161,7 +172,9 @@ export class KeyboardShortcutsService {
     if (shortcut.alt) parts.push('alt');
     if (shortcut.meta) parts.push('meta');
 
-    parts.push(shortcut.key.toLowerCase());
+    // Preserve case for special keys like ArrowDown, Escape, etc.
+    const key = shortcut.key.length === 1 ? shortcut.key.toLowerCase() : shortcut.key;
+    parts.push(key);
 
     return parts.join('+');
   }

@@ -1,5 +1,5 @@
 <app-search-header></app-search-header>
-<div class="search-results-container" role="main" aria-label="Search results">
+<div class="search-results-container" id="main-content" role="main" aria-label="Search results">
   <!-- Search Bar with Controls -->
   <div class="search-bar-wrapper" *ngIf="searchResponse && !loading && !error">
     <div class="search-bar-row">
@@ -39,6 +39,7 @@
           class="filter-toggle"
           (click)="toggleFilters()"
           [attr.aria-expanded]="showFilters"
+          [attr.aria-controls]="'filter-sidebar'"
           aria-label="Toggle filters sidebar"
         >
           <mat-icon>filter_list</mat-icon>
@@ -92,7 +93,13 @@
   <div *ngIf="searchResponse && !loading && !error" class="results-wrapper">
     <div class="results-layout">
       <!-- Filter Sidebar -->
-      <aside class="filter-sidebar-wrapper" [class.hidden]="!showFilters" [attr.aria-label]="'Search filters'">
+      <aside 
+        class="filter-sidebar-wrapper" 
+        [class.hidden]="!showFilters" 
+        [attr.aria-label]="'Search filters'"
+        [attr.aria-expanded]="showFilters"
+        id="filter-sidebar"
+      >
         <app-filter-sidebar
           [currentQuery]="currentQuery"
           (filtersChange)="onFiltersChange($event)"
@@ -186,9 +193,12 @@
             </div>
             <div class="source-group-results" *ngIf="isSourceExpanded(group.source)">
               <app-result-item
-                *ngFor="let result of group.results; trackBy: trackByResultId"
+                *ngFor="let result of group.results; trackBy: trackByResultId; let i = index"
+                #resultItem
                 [result]="result"
                 [searchQuery]="currentQuery"
+                [attr.tabindex]="selectedResultIndex === i ? 0 : -1"
+                [class.selected]="selectedResultIndex === i"
                 (openQuickView)="onOpenQuickView($event)"
                 (share)="onShareResult($event)"
                 (bookmark)="onBookmarkResult($event)"
@@ -200,9 +210,12 @@
         <!-- Results (Ungrouped) -->
         <div *ngIf="getFilteredResults().length > 0 && !groupBySource">
           <app-result-item
-            *ngFor="let result of getFilteredResults(); trackBy: trackByResultId"
+            *ngFor="let result of getFilteredResults(); trackBy: trackByResultId; let i = index"
+            #resultItem
             [result]="result"
             [searchQuery]="currentQuery"
+            [attr.tabindex]="selectedResultIndex === i ? 0 : -1"
+            [class.selected]="selectedResultIndex === i"
             (openQuickView)="onOpenQuickView($event)"
             (share)="onShareResult($event)"
             (bookmark)="onBookmarkResult($event)"

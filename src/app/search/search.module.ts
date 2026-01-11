@@ -39,6 +39,7 @@ import { FeaturedResultsComponent } from './featured-results/featured-results.co
 import { DocumentPreviewComponent } from './document-preview/document-preview.component';
 import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.component';
 import { AccessibilitySettingsComponent } from './accessibility-settings/accessibility-settings.component';
+import { KeyboardShortcutsHelpComponent } from './keyboard-shortcuts-help/keyboard-shortcuts-help.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { AccessibilitySettingsComponent } from './accessibility-settings/accessi
     FeaturedResultsComponent,
     DocumentPreviewComponent,
     QuickViewPanelComponent,
-    AccessibilitySettingsComponent
+    AccessibilitySettingsComponent,
+    KeyboardShortcutsHelpComponent
   ],
   imports: [
     CommonModule,

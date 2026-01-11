@@ -1,0 +1,178 @@
+.keyboard-shortcuts-help {
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+
+  .help-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #e5e7eb;
+
+    h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1d29;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: #3b4b7d;
+      }
+    }
+
+    button {
+      color: #6b7280;
+
+      &:hover {
+        background-color: rgba(59, 75, 125, 0.08);
+        color: #3b4b7d;
+      }
+    }
+  }
+
+  .help-content {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+
+    .shortcut-section {
+      margin-bottom: 32px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h3 {
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1d29;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .shortcut-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .shortcut-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px;
+          background: #f9fafb;
+          border-radius: 8px;
+          border: 1px solid #e5e7eb;
+          transition: all 0.2s;
+
+          &:hover {
+            background: #f3f4f6;
+            border-color: #3b4b7d;
+          }
+
+          .shortcut-keys {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+
+            .key {
+              padding: 4px 8px;
+              background: #ffffff;
+              border: 1px solid #d1d5db;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 600;
+              color: #1a1d29;
+              font-family: 'Courier New', monospace;
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+              min-width: 24px;
+              text-align: center;
+            }
+          }
+
+          .shortcut-description {
+            flex: 1;
+            margin-left: 16px;
+            font-size: 14px;
+            color: #6b7280;
+          }
+        }
+      }
+    }
+
+    .no-shortcuts {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+  }
+
+  :host-context(.dark-theme) & {
+    .help-header {
+      border-bottom-color: #374151;
+
+      h2 {
+        color: #e5e7eb;
+
+        mat-icon {
+          color: #8a9eff;
+        }
+      }
+
+      button {
+        color: #9ca3af;
+
+        &:hover {
+          background-color: rgba(138, 158, 255, 0.1);
+          color: #8a9eff;
+        }
+      }
+    }
+
+    .help-content {
+      .shortcut-section {
+        h3 {
+          color: #e5e7eb;
+          border-bottom-color: #374151;
+        }
+
+        .shortcut-list {
+          .shortcut-item {
+            background: #1f2937;
+            border-color: #374151;
+
+            &:hover {
+              background: #374151;
+              border-color: #8a9eff;
+            }
+
+            .shortcut-keys {
+              .key {
+                background: #1a1d29;
+                border-color: #4b5563;
+                color: #e5e7eb;
+              }
+            }
+
+            .shortcut-description {
+              color: #9ca3af;
+            }
+          }
+        }
+      }
+
+      .no-shortcuts {
+        color: #9ca3af;
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+<div class="keyboard-shortcuts-help">
+  <div class="help-header">
+    <h2>
+      <mat-icon>keyboard</mat-icon>
+      Keyboard Shortcuts
+    </h2>
+    <button mat-icon-button (click)="close()" aria-label="Close shortcuts help">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="help-content">
+    <!-- Global Shortcuts -->
+    <div class="shortcut-section" *ngIf="shortcuts.length > 0">
+      <h3>Global Shortcuts</h3>
+      <div class="shortcut-list">
+        <div class="shortcut-item" *ngFor="let shortcut of shortcuts">
+          <div class="shortcut-keys">
+            <span class="key" *ngFor="let key of formatShortcut(shortcut).split(' + ')">{{ key }}</span>
+          </div>
+          <div class="shortcut-description">{{ shortcut.description }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context-Specific Shortcuts -->
+    <div class="shortcut-section" *ngFor="let context of contextShortcuts.keys()">
+      <h3>{{ context | titlecase }} Shortcuts</h3>
+      <div class="shortcut-list">
+        <div class="shortcut-item" *ngFor="let shortcut of contextShortcuts.get(context)">
+          <div class="shortcut-keys">
+            <span class="key" *ngFor="let key of formatShortcut(shortcut).split(' + ')">{{ key }}</span>
+          </div>
+          <div class="shortcut-description">{{ shortcut.description }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No shortcuts message -->
+    <div class="no-shortcuts" *ngIf="shortcuts.length === 0 && contextShortcuts.size === 0">
+      <p>No keyboard shortcuts available.</p>
+    </div>
+  </div>
+</div>

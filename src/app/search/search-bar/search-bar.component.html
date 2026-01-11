@@ -4,6 +4,7 @@
       <mat-label>{{ placeholder }}</mat-label>
       <input
         #searchInput
+        id="search-input"
         matInput
         [formControl]="searchControl"
         (focus)="onInputFocus()"
@@ -11,6 +12,7 @@
         (keydown)="onInputKeyDown($event)"
         [attr.aria-label]="placeholder"
         aria-describedby="search-help-text"
+        [attr.aria-controls]="showAutocomplete ? 'autocomplete-list' : null"
       />
       <button
         *ngIf="searchControl.value"

@@ -1,0 +1,25 @@
+<button mat-icon-button [matMenuTriggerFor]="actionsMenu" 
+        class="quick-actions-button"
+        [attr.aria-label]="'Quick actions for ' + result.title"
+        aria-haspopup="true">
+  <mat-icon>more_vert</mat-icon>
+</button>
+
+<mat-menu #actionsMenu="matMenu" xPosition="before" class="quick-actions-menu">
+  <button mat-menu-item (click)="onDownload()" aria-label="Download document">
+    <mat-icon>download</mat-icon>
+    <span>Download</span>
+  </button>
+  <button mat-menu-item (click)="onShare()" aria-label="Share document">
+    <mat-icon>share</mat-icon>
+    <span>Share</span>
+  </button>
+  <button mat-menu-item (click)="onBookmark()" aria-label="Bookmark document">
+    <mat-icon>bookmark</mat-icon>
+    <span>Bookmark</span>
+  </button>
+  <button mat-menu-item (click)="onCopyLink()" aria-label="Copy link to document">
+    <mat-icon>link</mat-icon>
+    <span>Copy Link</span>
+  </button>
+</mat-menu>
