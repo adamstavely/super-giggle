@@ -1,4 +1,4 @@
-<mat-card class="result-item-card">
+<mat-card class="result-item-card" [class.menu-open]="showQuickActions">
   <mat-card-content>
     <div class="result-header">
       <div class="result-title-section">
@@ -9,12 +9,87 @@
           {{ result.title }}
         </a>
       </div>
-      <div *ngIf="result.thumbnail" class="result-thumbnail">
-        <img [src]="result.thumbnail" [alt]="result.title" />
+      <div class="result-header-actions">
+        <!-- Quick Actions Menu -->
+        <button
+          mat-icon-button
+          class="quick-actions-button"
+          (click)="toggleQuickActions()"
+          [attr.aria-expanded]="showQuickActions"
+          [attr.aria-label]="'Quick actions for ' + result.title"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <div class="quick-actions-menu" *ngIf="showQuickActions" (click)="$event.stopPropagation()">
+          <button class="menu-action-item" (click)="onOpenQuickView()" *ngIf="supportsPreview">
+            <mat-icon>preview</mat-icon>
+            <span>Quick View</span>
+          </button>
+          <button class="menu-action-item" (click)="onDownload()">
+            <mat-icon>download</mat-icon>
+            <span>Download</span>
+          </button>
+          <button class="menu-action-item" (click)="onShare()">
+            <mat-icon>share</mat-icon>
+            <span>Share</span>
+          </button>
+          <button class="menu-action-item" (click)="onBookmark()">
+            <mat-icon>bookmark_border</mat-icon>
+            <span>Bookmark</span>
+          </button>
+          <button class="menu-action-item" (click)="onCopyLink()">
+            <mat-icon>link</mat-icon>
+            <span>Copy Link</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="result-snippet">{{ result.snippet }}</div>
+    <!-- Enhanced Thumbnail -->
+    <div *ngIf="result.thumbnail" class="result-thumbnail-enhanced">
+      <img [src]="result.thumbnail" [alt]="result.title" (click)="onOpenQuickView()" *ngIf="supportsPreview" />
+      <img [src]="result.thumbnail" [alt]="result.title" *ngIf="!supportsPreview" />
+    </div>
+
+    <!-- Enhanced Snippet with highlighting -->
+    <div class="result-snippet" [innerHTML]="getEnhancedSnippet()"></div>
+
+    <!-- Document Metadata Card -->
+    <div class="metadata-card" *ngIf="documentMetadata && (documentMetadata.fileSize || documentMetadata.wordCount || documentMetadata.readingTime)">
+      <div class="metadata-item" *ngIf="documentMetadata.fileSize">
+        <mat-icon class="metadata-icon-small">storage</mat-icon>
+        <span class="metadata-text-small">{{ formatFileSize(documentMetadata.fileSize) }}</span>
+      </div>
+      <div class="metadata-item" *ngIf="documentMetadata.wordCount">
+        <mat-icon class="metadata-icon-small">text_fields</mat-icon>
+        <span class="metadata-text-small">{{ documentMetadata.wordCount | number }} words</span>
+      </div>
+      <div class="metadata-item" *ngIf="documentMetadata.readingTime">
+        <mat-icon class="metadata-icon-small">schedule</mat-icon>
+        <span class="metadata-text-small">{{ formatReadingTime(documentMetadata.readingTime) }}</span>
+      </div>
+      <button
+        mat-button
+        class="metadata-toggle"
+        (click)="toggleMetadata()"
+        [attr.aria-expanded]="showMetadata"
+      >
+        {{ showMetadata ? 'Less' : 'More' }} info
+        <mat-icon>{{ showMetadata ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+    </div>
+
+    <!-- Expanded Metadata -->
+    <div class="expanded-metadata" *ngIf="showMetadata && documentMetadata">
+      <div class="metadata-row" *ngIf="documentMetadata.pageCount">
+        <span class="metadata-label">Pages:</span>
+        <span class="metadata-value">{{ documentMetadata.pageCount }}</span>
+      </div>
+      <div class="metadata-row" *ngIf="documentMetadata.language">
+        <span class="metadata-label">Language:</span>
+        <span class="metadata-value">{{ documentMetadata.language }}</span>
+      </div>
+    </div>
 
     <div class="result-metadata">
       <div class="metadata-item" *ngIf="result.source">
@@ -40,6 +115,14 @@
       <span *ngFor="let crumb of result.breadcrumb; let last = last" class="breadcrumb-item">
         {{ crumb }}<span *ngIf="!last" class="breadcrumb-separator"> / </span>
       </span>
+    </div>
+
+    <!-- Preview Button -->
+    <div class="preview-actions" *ngIf="supportsPreview">
+      <button mat-button (click)="onOpenQuickView()" class="preview-button">
+        <mat-icon>preview</mat-icon>
+        <span>Preview</span>
+      </button>
     </div>
 
     <div class="result-feedback">

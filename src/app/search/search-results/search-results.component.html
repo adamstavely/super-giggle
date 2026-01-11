@@ -157,12 +157,51 @@
           [searchQuery]="currentQuery"
         ></app-featured-results>
 
-        <!-- Results -->
-        <div *ngIf="getFilteredResults().length > 0">
+        <!-- Group by Source Toggle -->
+        <div class="group-by-source-toggle" *ngIf="getFilteredResults().length > 0">
+          <button
+            mat-button
+            (click)="toggleGroupBySource()"
+            [class.active]="groupBySource"
+            aria-label="Toggle group by source"
+          >
+            <mat-icon>{{ groupBySource ? 'view_list' : 'view_module' }}</mat-icon>
+            <span>{{ groupBySource ? 'Ungroup' : 'Group by Source' }}</span>
+          </button>
+        </div>
+
+        <!-- Results (Grouped) -->
+        <div *ngIf="getFilteredResults().length > 0 && groupBySource">
+          <div *ngFor="let group of getGroupedResults()" class="source-group">
+            <div class="source-group-header" (click)="toggleSource(group.source)">
+              <mat-icon class="expand-icon" [class.expanded]="isSourceExpanded(group.source)">
+                expand_more
+              </mat-icon>
+              <span class="source-name">{{ group.source }}</span>
+              <span class="source-count">({{ getSourceCount(group.source) }})</span>
+            </div>
+            <div class="source-group-results" *ngIf="isSourceExpanded(group.source)">
+              <app-result-item
+                *ngFor="let result of group.results; trackBy: trackByResultId"
+                [result]="result"
+                [searchQuery]="currentQuery"
+                (openQuickView)="onOpenQuickView($event)"
+                (share)="onShareResult($event)"
+                (bookmark)="onBookmarkResult($event)"
+              ></app-result-item>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results (Ungrouped) -->
+        <div *ngIf="getFilteredResults().length > 0 && !groupBySource">
           <app-result-item
             *ngFor="let result of getFilteredResults(); trackBy: trackByResultId"
             [result]="result"
             [searchQuery]="currentQuery"
+            (openQuickView)="onOpenQuickView($event)"
+            (share)="onShareResult($event)"
+            (bookmark)="onBookmarkResult($event)"
           ></app-result-item>
 
           <!-- Pagination -->
@@ -186,4 +225,13 @@
       </main>
     </div>
   </div>
+
+  <!-- Quick View Panel -->
+  <app-quick-view-panel
+    [result]="quickViewResult"
+    [allResults]="getFilteredResults()"
+    [isOpen]="quickViewOpen"
+    (close)="onCloseQuickView()"
+    (navigateResult)="onNavigateQuickView($event)"
+  ></app-quick-view-panel>
 </div>

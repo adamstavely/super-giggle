@@ -220,7 +220,10 @@ export class SearchService {
       {
         id: '1',
         title: 'Employee Handbook 2024',
-        snippet: `The complete employee handbook covering company policies, ${queryLower} procedures, benefits, and code of conduct. This document is updated annually and contains all the information you need to know about working at our company.`,
+        snippet: this.generateEnhancedSnippet(
+          `The complete employee handbook covering company policies, procedures, benefits, and code of conduct. This document is updated annually and contains all the information you need to know about working at our company. It includes sections on workplace safety, employee rights, compensation, and professional development opportunities.`,
+          queryLower
+        ),
         source: 'SharePoint',
         author: 'HR Department',
         lastModified: new Date('2024-01-15'),
@@ -232,7 +235,10 @@ export class SearchService {
       {
         id: '2',
         title: 'Remote Work Policy and Guidelines',
-        snippet: `Comprehensive guide to our remote work ${queryLower} policy. Includes eligibility requirements, equipment provisions, communication expectations, and performance standards for remote employees.`,
+        snippet: this.generateEnhancedSnippet(
+          `Comprehensive guide to our remote work policy. Includes eligibility requirements, equipment provisions, communication expectations, and performance standards for remote employees. This document outlines the application process, approval criteria, and ongoing requirements for maintaining remote work status.`,
+          queryLower
+        ),
         source: 'OneDrive',
         author: 'Jane Smith',
         lastModified: new Date('2024-02-20'),
@@ -244,7 +250,10 @@ export class SearchService {
       {
         id: '3',
         title: 'Q4 Financial Report 2023',
-        snippet: `Quarterly financial report detailing revenue, expenses, and profit margins. This ${queryLower} document includes detailed analysis of Q4 performance and year-end financial summary.`,
+        snippet: this.generateEnhancedSnippet(
+          `Quarterly financial report detailing revenue, expenses, and profit margins. This document includes detailed analysis of Q4 performance and year-end financial summary. The report covers all major financial metrics including revenue growth, expense management, and profitability trends.`,
+          queryLower
+        ),
         source: 'SharePoint',
         author: 'Finance Team',
         lastModified: new Date('2024-01-10'),
@@ -663,6 +672,65 @@ export class SearchService {
     return allSuggestions.filter(suggestion =>
       suggestion.text.toLowerCase().includes(queryLower)
     ).slice(0, 8); // Limit to 8 suggestions
+  }
+
+  /**
+   * Generate enhanced snippet with better context and highlighting
+   */
+  private generateEnhancedSnippet(content: string, query: string, maxLength: number = 200): string {
+    if (!query || !content) {
+      return content.substring(0, maxLength) + (content.length > maxLength ? '...' : '');
+    }
+
+    const queryTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 2);
+    const contentLower = content.toLowerCase();
+
+    // Find the best match position (prefer earlier matches with more context)
+    let bestPosition = -1;
+    let bestScore = 0;
+
+    queryTerms.forEach(term => {
+      const position = contentLower.indexOf(term);
+      if (position >= 0) {
+        // Score based on position (earlier is better) and context availability
+        const beforeContext = Math.min(position, 50);
+        const afterContext = Math.min(content.length - position - term.length, 150);
+        const score = beforeContext + afterContext - (position / 10); // Prefer earlier matches
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestPosition = position;
+        }
+      }
+    });
+
+    // If no match found, return beginning
+    if (bestPosition < 0) {
+      return content.substring(0, maxLength) + (content.length > maxLength ? '...' : '');
+    }
+
+    // Extract snippet around the match
+    const contextBefore = Math.min(50, bestPosition);
+    const contextAfter = Math.min(150, content.length - bestPosition);
+    const start = Math.max(0, bestPosition - contextBefore);
+    const end = Math.min(content.length, bestPosition + contextAfter);
+
+    let snippet = content.substring(start, end);
+
+    // Add ellipsis if not at start/end
+    if (start > 0) {
+      snippet = '...' + snippet;
+    }
+    if (end < content.length) {
+      snippet = snippet + '...';
+    }
+
+    // Ensure we don't exceed max length
+    if (snippet.length > maxLength) {
+      snippet = snippet.substring(0, maxLength) + '...';
+    }
+
+    return snippet;
   }
 
   /**

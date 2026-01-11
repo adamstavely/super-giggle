@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { DocumentMetadata } from '../../search/search.models';
 import { CacheService } from './cache.service';
 
@@ -22,7 +22,9 @@ export class DocumentMetadataService {
 
     // Check cache first
     if (this.cacheService.has(cacheKey)) {
-      return this.cacheService.get<DocumentMetadata>(cacheKey);
+      return this.cacheService.get<DocumentMetadata>(cacheKey).pipe(
+        map(cached => cached || this.generateMetadata(documentUrl, fileType, content))
+      );
     }
 
     // Generate metadata

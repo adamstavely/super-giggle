@@ -1,0 +1,20 @@
+<div *ngIf="answer" class="ai-answer-container" role="region" aria-label="AI-generated answer">
+  <div class="ai-answer-header">
+    <mat-icon class="ai-icon" aria-hidden="true">psychology</mat-icon>
+    <h3 class="ai-answer-title">AI Answer</h3>
+    <span class="confidence-badge" [style.color]="confidenceColor" 
+          [attr.aria-label]="'Confidence: ' + confidencePercentage + '%'">
+      {{ confidencePercentage }}% confidence
+    </span>
+  </div>
+  
+  <div class="ai-answer-content">
+    <p>{{ answer.answer }}</p>
+  </div>
+  
+  <div *ngIf="showSources && answer.sources && answer.sources.length > 0" 
+       class="ai-answer-sources">
+    <span class="sources-label">Sources:</span>
+    <span class="sources-count">{{ answer.sources.length }} document(s)</span>
+  </div>
+</div>

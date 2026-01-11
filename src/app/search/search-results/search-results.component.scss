@@ -384,6 +384,124 @@
             }
           }
         }
+
+        .group-by-source-toggle {
+          margin-bottom: 16px;
+          display: flex;
+          justify-content: flex-end;
+
+          button {
+            font-size: 13px;
+            color: #6b7280;
+
+            :host-context(.dark-theme) & {
+              color: #9ca3af;
+            }
+
+            &.active {
+              background: #3b4b7d;
+              color: #ffffff;
+
+              :host-context(.dark-theme) & {
+                background: #596691;
+              }
+            }
+
+            mat-icon {
+              margin-right: 4px;
+            }
+          }
+        }
+
+        .source-group {
+          margin-bottom: 24px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          overflow: hidden;
+          transition: all 0.3s ease;
+
+          :host-context(.dark-theme) & {
+            background: #1a1d29;
+            border-color: #374151;
+          }
+
+          .source-group-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f9fafb;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+
+            :host-context(.dark-theme) & {
+              background: #111827;
+            }
+
+            &:hover {
+              background: #f3f4f6;
+
+              :host-context(.dark-theme) & {
+                background: #1f2937;
+              }
+            }
+
+            .expand-icon {
+              margin-right: 12px;
+              transition: transform 0.2s ease;
+              color: #6b7280;
+
+              &.expanded {
+                transform: rotate(180deg);
+              }
+            }
+
+            .source-name {
+              flex: 1;
+              font-weight: 600;
+              font-size: 15px;
+              color: #1a1d29;
+
+              :host-context(.dark-theme) & {
+                color: #e5e7eb;
+              }
+            }
+
+            .source-count {
+              font-size: 13px;
+              color: #6b7280;
+              font-weight: 400;
+              margin-left: 8px;
+
+              :host-context(.dark-theme) & {
+                color: #9ca3af;
+              }
+            }
+          }
+
+          .source-group-results {
+            padding: 0;
+            border-top: 1px solid #e5e7eb;
+
+            :host-context(.dark-theme) & {
+              border-top-color: #374151;
+            }
+
+            app-result-item {
+              display: block;
+              border-bottom: 1px solid #f3f4f6;
+
+              :host-context(.dark-theme) & {
+                border-bottom-color: #374151;
+              }
+
+              &:last-child {
+                border-bottom: none;
+              }
+            }
+          }
+        }
       }
     }
   }

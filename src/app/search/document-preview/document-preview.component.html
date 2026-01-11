@@ -1,0 +1,88 @@
+<div class="document-preview-container" *ngIf="result">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="preview-loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading preview...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="preview-error">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button (click)="loadPreview()">Retry</button>
+  </div>
+
+  <!-- Preview Content -->
+  <div *ngIf="previewInfo && !loading && !error" class="preview-content">
+    <!-- PDF Preview -->
+    <div *ngIf="isPdf()" class="pdf-preview">
+      <iframe
+        [src]="getPreviewUrl()"
+        class="preview-iframe"
+        frameborder="0"
+        [attr.aria-label]="'Preview of ' + result.title"
+      ></iframe>
+    </div>
+
+    <!-- Image Preview -->
+    <div *ngIf="isImage()" class="image-preview">
+      <img
+        [src]="getPreviewUrl()"
+        [alt]="result.title"
+        class="preview-image"
+        (click)="toggleFullScreen()"
+      />
+    </div>
+
+    <!-- Video Preview -->
+    <div *ngIf="isVideo()" class="video-preview">
+      <video
+        [src]="getPreviewUrl()"
+        class="preview-video"
+        controls
+        [attr.aria-label]="'Video preview of ' + result.title"
+      ></video>
+    </div>
+
+    <!-- Iframe Preview (for HTML/web pages) -->
+    <div *ngIf="isIframe()" class="iframe-preview">
+      <iframe
+        [src]="getPreviewUrl()"
+        class="preview-iframe"
+        frameborder="0"
+        [attr.aria-label]="'Preview of ' + result.title"
+      ></iframe>
+    </div>
+
+    <!-- Unsupported Type -->
+    <div *ngIf="!supportsPreview()" class="unsupported-preview">
+      <mat-icon>insert_drive_file</mat-icon>
+      <p>Preview not available for this file type</p>
+      <a [href]="result.url" mat-button target="_blank">
+        <mat-icon>open_in_new</mat-icon>
+        Open Document
+      </a>
+    </div>
+
+    <!-- Full Screen Overlay -->
+    <div *ngIf="isFullScreen && isImage()" class="fullscreen-overlay" (click)="closeFullScreen()">
+      <button mat-icon-button class="close-fullscreen" (click)="closeFullScreen()" aria-label="Close fullscreen">
+        <mat-icon>close</mat-icon>
+      </button>
+      <img
+        [src]="getPreviewUrl()"
+        [alt]="result.title"
+        class="fullscreen-image"
+        (click)="$event.stopPropagation()"
+      />
+    </div>
+  </div>
+
+  <!-- Load Preview Button (if not auto-loading) -->
+  <div *ngIf="!previewInfo && !loading && !error && !autoLoad" class="preview-actions">
+    <button mat-raised-button color="primary" (click)="loadPreview()">
+      <mat-icon>preview</mat-icon>
+      Load Preview
+    </button>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { CacheService } from './cache.service';
 
 export interface PreviewInfo {
@@ -33,7 +33,9 @@ export class DocumentPreviewService {
     // Check cache first
     const cached = this.cacheService.has(cacheKey);
     if (cached) {
-      return this.cacheService.get<PreviewInfo>(cacheKey);
+      return this.cacheService.get<PreviewInfo>(cacheKey).pipe(
+        map(cachedInfo => cachedInfo || this.determinePreviewType(documentUrl, fileType))
+      );
     }
 
     const previewInfo = this.determinePreviewType(documentUrl, fileType);

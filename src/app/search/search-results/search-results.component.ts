@@ -21,6 +21,12 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   showFilters = false;
   selectedTab: ContentType = 'all';
   selectedTabIndex = 0;
+  groupBySource = false;
+  expandedSources = new Set<string>();
+  
+  // Quick View Panel
+  quickViewResult: SearchResult | null = null;
+  quickViewOpen = false;
 
   // Cache sort and page size options to avoid creating new arrays on every change detection
   readonly sortOptions: { value: SortOption; label: string }[] = [
@@ -317,5 +323,83 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     const sites = all - news - video - images;
 
     return { all, news, video, images, sites };
+  }
+
+  toggleGroupBySource(): void {
+    this.groupBySource = !this.groupBySource;
+    if (this.groupBySource) {
+      // Expand all sources by default
+      this.getGroupedResults().forEach(group => {
+        this.expandedSources.add(group.source);
+      });
+    }
+  }
+
+  toggleSource(source: string): void {
+    if (this.expandedSources.has(source)) {
+      this.expandedSources.delete(source);
+    } else {
+      this.expandedSources.add(source);
+    }
+  }
+
+  isSourceExpanded(source: string): boolean {
+    return this.expandedSources.has(source);
+  }
+
+  getGroupedResults(): Array<{ source: string; results: SearchResult[] }> {
+    if (!this.searchResponse || !this.searchResponse.results) {
+      return [];
+    }
+
+    const results = this.getFilteredResults();
+    const grouped = new Map<string, SearchResult[]>();
+
+    results.forEach(result => {
+      const source = result.source || 'Unknown';
+      if (!grouped.has(source)) {
+        grouped.set(source, []);
+      }
+      grouped.get(source)!.push(result);
+    });
+
+    // Convert to array and sort by source name
+    return Array.from(grouped.entries())
+      .map(([source, results]) => ({ source, results }))
+      .sort((a, b) => a.source.localeCompare(b.source));
+  }
+
+  getSourceCount(source: string): number {
+    const grouped = this.getGroupedResults();
+    const group = grouped.find(g => g.source === source);
+    return group ? group.results.length : 0;
+  }
+
+  onOpenQuickView(result: SearchResult): void {
+    this.quickViewResult = result;
+    this.quickViewOpen = true;
+  }
+
+  onCloseQuickView(): void {
+    this.quickViewOpen = false;
+    this.quickViewResult = null;
+  }
+
+  onNavigateQuickView(index: number): void {
+    const results = this.getFilteredResults();
+    if (index >= 0 && index < results.length) {
+      // Create a new object reference to trigger change detection
+      this.quickViewResult = { ...results[index] };
+    }
+  }
+
+  onShareResult(result: SearchResult): void {
+    // TODO: Implement share functionality
+    console.log('Share result:', result);
+  }
+
+  onBookmarkResult(result: SearchResult): void {
+    // TODO: Implement bookmark functionality
+    console.log('Bookmark result:', result);
   }
 }

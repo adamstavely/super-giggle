@@ -23,6 +23,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule } from '@angular/material/dialog';
 
 // Components
 import { SearchHomeComponent } from './search-home/search-home.component';
@@ -34,6 +35,8 @@ import { ResultItemComponent } from './result-item/result-item.component';
 import { AdvancedSearchComponent } from './advanced-search/advanced-search.component';
 import { HeaderComponent } from './header/header.component';
 import { FeaturedResultsComponent } from './featured-results/featured-results.component';
+import { DocumentPreviewComponent } from './document-preview/document-preview.component';
+import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +48,9 @@ import { FeaturedResultsComponent } from './featured-results/featured-results.co
     ResultItemComponent,
     AdvancedSearchComponent,
     HeaderComponent,
-    FeaturedResultsComponent
+    FeaturedResultsComponent,
+    DocumentPreviewComponent,
+    QuickViewPanelComponent
   ],
   imports: [
     CommonModule,
@@ -70,7 +75,8 @@ import { FeaturedResultsComponent } from './featured-results/featured-results.co
     MatMenuModule,
     MatSnackBarModule,
     MatTooltipModule,
-    MatTabsModule
+    MatTabsModule,
+    MatDialogModule
   ],
   providers: []
 })

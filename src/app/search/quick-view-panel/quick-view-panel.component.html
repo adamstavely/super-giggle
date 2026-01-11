@@ -1,0 +1,126 @@
+<div class="quick-view-panel" [class.open]="isOpen" *ngIf="result">
+  <div class="panel-overlay" (click)="closePanel()"></div>
+  <div class="panel-content">
+    <!-- Panel Header -->
+    <div class="panel-header">
+      <div class="panel-title">
+        <h2>{{ result.title }}</h2>
+        <span class="panel-subtitle">{{ result.fileType }} • {{ result.source }}</span>
+      </div>
+      <div class="panel-actions">
+        <button
+          mat-icon-button
+          (click)="navigatePrevious()"
+          [disabled]="!canNavigatePrevious()"
+          [attr.aria-label]="'Previous result'"
+          title="Previous (←)"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="result-counter" *ngIf="allResults.length > 0">
+          {{ currentIndex + 1 }} / {{ allResults.length }}
+        </span>
+        <button
+          mat-icon-button
+          (click)="navigateNext()"
+          [disabled]="!canNavigateNext()"
+          [attr.aria-label]="'Next result'"
+          title="Next (→)"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="closePanel()"
+          [attr.aria-label]="'Close panel'"
+          title="Close (ESC)"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel Body -->
+    <div class="panel-body">
+      <!-- Document Preview -->
+      <div class="preview-section">
+        <app-document-preview
+          [result]="result"
+          [autoLoad]="true"
+        ></app-document-preview>
+      </div>
+
+      <!-- Document Metadata -->
+      <div class="metadata-section">
+        <h3>Document Information</h3>
+        
+        <div class="metadata-grid" *ngIf="documentMetadata || loadingMetadata">
+          <div class="metadata-card" *ngIf="documentMetadata && documentMetadata.fileSize">
+            <mat-icon>storage</mat-icon>
+            <div>
+              <span class="metadata-label">File Size</span>
+              <span class="metadata-value">{{ formatFileSize(documentMetadata.fileSize) }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-card" *ngIf="documentMetadata && documentMetadata.wordCount">
+            <mat-icon>text_fields</mat-icon>
+            <div>
+              <span class="metadata-label">Word Count</span>
+              <span class="metadata-value">{{ documentMetadata.wordCount | number }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-card" *ngIf="documentMetadata && documentMetadata.readingTime">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <span class="metadata-label">Reading Time</span>
+              <span class="metadata-value">{{ formatReadingTime(documentMetadata.readingTime) }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-card" *ngIf="documentMetadata && documentMetadata.pageCount">
+            <mat-icon>pages</mat-icon>
+            <div>
+              <span class="metadata-label">Pages</span>
+              <span class="metadata-value">{{ documentMetadata.pageCount }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-card" *ngIf="result.author">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="metadata-label">Author</span>
+              <span class="metadata-value">{{ result.author }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-card" *ngIf="result.lastModified">
+            <mat-icon>calendar_today</mat-icon>
+            <div>
+              <span class="metadata-label">Last Modified</span>
+              <span class="metadata-value">{{ result.lastModified | date:'MMM d, y' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="loadingMetadata" class="metadata-loading">
+          <mat-spinner diameter="30"></mat-spinner>
+          <span>Loading metadata...</span>
+        </div>
+      </div>
+
+      <!-- Document Actions -->
+      <div class="actions-section">
+        <a [href]="result.url" mat-raised-button color="primary" target="_blank">
+          <mat-icon>open_in_new</mat-icon>
+          Open Document
+        </a>
+        <button mat-button (click)="closePanel()">
+          <mat-icon>close</mat-icon>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
