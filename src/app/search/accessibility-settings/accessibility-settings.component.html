@@ -1,0 +1,103 @@
+<mat-card class="accessibility-settings-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>accessibility_new</mat-icon>
+      Accessibility Settings
+    </mat-card-title>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <!-- High Contrast Mode -->
+    <div class="setting-item">
+      <div class="setting-label">
+        <mat-icon>contrast</mat-icon>
+        <div>
+          <h3>High Contrast Mode</h3>
+          <p>Increase contrast for better visibility</p>
+        </div>
+      </div>
+      <mat-slide-toggle
+        [checked]="settings.highContrast"
+        (change)="toggleHighContrast()"
+        aria-label="Toggle high contrast mode"
+      ></mat-slide-toggle>
+    </div>
+
+    <!-- Font Size -->
+    <div class="setting-item">
+      <div class="setting-label">
+        <mat-icon>text_fields</mat-icon>
+        <div>
+          <h3>Font Size</h3>
+          <p>Adjust text size for better readability</p>
+        </div>
+      </div>
+      <div class="font-size-buttons">
+        <button
+          mat-button
+          [class.active]="settings.fontSize === 'small'"
+          (click)="setFontSize('small')"
+          aria-label="Small font size"
+        >
+          A
+        </button>
+        <button
+          mat-button
+          [class.active]="settings.fontSize === 'medium'"
+          (click)="setFontSize('medium')"
+          aria-label="Medium font size"
+        >
+          A
+        </button>
+        <button
+          mat-button
+          [class.active]="settings.fontSize === 'large'"
+          (click)="setFontSize('large')"
+          aria-label="Large font size"
+        >
+          A
+        </button>
+        <button
+          mat-button
+          [class.active]="settings.fontSize === 'xlarge'"
+          (click)="setFontSize('xlarge')"
+          aria-label="Extra large font size"
+        >
+          A
+        </button>
+      </div>
+    </div>
+
+    <!-- Reduced Motion -->
+    <div class="setting-item">
+      <div class="setting-label">
+        <mat-icon>motion_photos_off</mat-icon>
+        <div>
+          <h3>Reduce Motion</h3>
+          <p>Minimize animations and transitions</p>
+        </div>
+      </div>
+      <mat-slide-toggle
+        [checked]="settings.reducedMotion"
+        (change)="toggleReducedMotion()"
+        aria-label="Toggle reduced motion"
+      ></mat-slide-toggle>
+    </div>
+
+    <!-- Focus Indicators -->
+    <div class="setting-item">
+      <div class="setting-label">
+        <mat-icon>visibility</mat-icon>
+        <div>
+          <h3>Enhanced Focus Indicators</h3>
+          <p>Show clear focus outlines for keyboard navigation</p>
+        </div>
+      </div>
+      <mat-slide-toggle
+        [checked]="settings.focusVisible"
+        (change)="toggleFocusVisible()"
+        aria-label="Toggle focus indicators"
+      ></mat-slide-toggle>
+    </div>
+  </mat-card-content>
+</mat-card>

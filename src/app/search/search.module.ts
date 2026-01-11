@@ -24,6 +24,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 // Components
 import { SearchHomeComponent } from './search-home/search-home.component';
@@ -37,6 +38,7 @@ import { HeaderComponent } from './header/header.component';
 import { FeaturedResultsComponent } from './featured-results/featured-results.component';
 import { DocumentPreviewComponent } from './document-preview/document-preview.component';
 import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.component';
+import { AccessibilitySettingsComponent } from './accessibility-settings/accessibility-settings.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +52,8 @@ import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.com
     HeaderComponent,
     FeaturedResultsComponent,
     DocumentPreviewComponent,
-    QuickViewPanelComponent
+    QuickViewPanelComponent,
+    AccessibilitySettingsComponent
   ],
   imports: [
     CommonModule,
@@ -76,7 +79,8 @@ import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.com
     MatSnackBarModule,
     MatTooltipModule,
     MatTabsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSlideToggleModule
   ],
   providers: []
 })

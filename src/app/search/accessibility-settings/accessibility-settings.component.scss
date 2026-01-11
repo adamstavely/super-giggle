@@ -1,0 +1,125 @@
+.accessibility-settings-card {
+  max-width: 600px;
+  margin: 24px auto;
+  
+  mat-card-header {
+    margin-bottom: 24px;
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 600;
+      
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: #3b4b7d;
+      }
+    }
+  }
+  
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-label {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #3b4b7d;
+        flex-shrink: 0;
+      }
+      
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1d29;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14px;
+        color: #6b7280;
+      }
+    }
+    
+    .font-size-buttons {
+      display: flex;
+      gap: 8px;
+      
+      button {
+        min-width: 48px;
+        font-size: 18px;
+        font-weight: 600;
+        padding: 8px 12px;
+        border: 2px solid #e5e7eb;
+        background: transparent;
+        transition: all 0.2s;
+        
+        &.active {
+          background: #3b4b7d;
+          color: #ffffff;
+          border-color: #3b4b7d;
+        }
+        
+        &:hover:not(.active) {
+          border-color: #3b4b7d;
+          background: rgba(59, 75, 125, 0.08);
+        }
+      }
+    }
+  }
+  
+  :host-context(.dark-theme) & {
+    .setting-item {
+      border-bottom-color: #374151;
+      
+      .setting-label {
+        h3 {
+          color: #e5e7eb;
+        }
+        
+        p {
+          color: #9ca3af;
+        }
+        
+        mat-icon {
+          color: #8a9eff;
+        }
+      }
+      
+      .font-size-buttons {
+        button {
+          border-color: #374151;
+          
+          &.active {
+            background: #8a9eff;
+            border-color: #8a9eff;
+          }
+          
+          &:hover:not(.active) {
+            border-color: #8a9eff;
+            background: rgba(138, 158, 255, 0.1);
+          }
+        }
+      }
+    }
+  }
+}

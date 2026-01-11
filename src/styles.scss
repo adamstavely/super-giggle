@@ -256,3 +256,130 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 }
+
+// Accessibility Styles
+
+// High Contrast Theme
+.high-contrast-theme {
+  --hc-bg: #000000;
+  --hc-text: #ffffff;
+  --hc-primary: #00ffff;
+  --hc-accent: #ffff00;
+  --hc-border: #ffffff;
+  --hc-focus: #00ffff;
+  
+  background: var(--hc-bg) !important;
+  color: var(--hc-text) !important;
+  
+  * {
+    border-color: var(--hc-border) !important;
+  }
+  
+  button, a, input, select, textarea {
+    &:focus-visible {
+      outline: 3px solid var(--hc-focus) !important;
+      outline-offset: 2px !important;
+    }
+  }
+  
+  .mat-mdc-card {
+    background-color: var(--hc-bg) !important;
+    border: 2px solid var(--hc-border) !important;
+    color: var(--hc-text) !important;
+  }
+  
+  .mat-mdc-button {
+    border: 2px solid var(--hc-border) !important;
+    
+    &.mat-primary {
+      background-color: var(--hc-primary) !important;
+      color: var(--hc-bg) !important;
+    }
+  }
+}
+
+// Font Size Controls
+:root {
+  --base-font-size: 16px;
+}
+
+body {
+  font-size: var(--base-font-size);
+  
+  &.font-small {
+    --base-font-size: 14px;
+  }
+  
+  &.font-medium {
+    --base-font-size: 16px;
+  }
+  
+  &.font-large {
+    --base-font-size: 18px;
+  }
+  
+  &.font-xlarge {
+    --base-font-size: 20px;
+  }
+}
+
+// Reduced Motion
+.reduced-motion {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Enhanced Focus Indicators
+.focus-visible {
+  *:focus-visible {
+    outline: 3px solid #3b4b7d;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #3b4b7d;
+    outline-offset: 2px;
+  }
+  
+  .dark-theme *:focus-visible {
+    outline-color: #8a9eff;
+  }
+  
+  .high-contrast-theme *:focus-visible {
+    outline-color: #00ffff;
+    outline-width: 4px;
+  }
+}
+
+// Screen Reader Only
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
