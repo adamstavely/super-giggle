@@ -43,6 +43,7 @@ import { QuickViewPanelComponent } from './quick-view-panel/quick-view-panel.com
 import { AccessibilitySettingsComponent } from './accessibility-settings/accessibility-settings.component';
 import { KeyboardShortcutsHelpComponent } from './keyboard-shortcuts-help/keyboard-shortcuts-help.component';
 import { LoadingSkeletonComponent } from './loading-skeleton/loading-skeleton.component';
+import { AIAnswerComponent } from './ai-answer/ai-answer.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { LoadingSkeletonComponent } from './loading-skeleton/loading-skeleton.co
     QuickViewPanelComponent,
     AccessibilitySettingsComponent,
     KeyboardShortcutsHelpComponent,
-    LoadingSkeletonComponent
+    LoadingSkeletonComponent,
+    AIAnswerComponent
   ],
   imports: [
     CommonModule,

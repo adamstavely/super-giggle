@@ -96,6 +96,13 @@
     </div>
   </div>
 
+  <!-- AI Answer -->
+  <app-ai-answer
+    *ngIf="searchResponse && !loading && !error && aiAnswer"
+    [answer]="aiAnswer"
+    [showSources]="true"
+  ></app-ai-answer>
+
   <!-- Results -->
   <div *ngIf="searchResponse && !loading && !error" class="results-wrapper">
     <div class="results-layout">

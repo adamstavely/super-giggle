@@ -1,10 +1,19 @@
 .ai-answer-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 8px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%);
+  border: 2px solid #c7d2fe;
+  border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #1a1d29;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  transition: all 0.3s ease;
+
+  :host-context(.dark-theme) & {
+    background: linear-gradient(135deg, #1e293b 0%, #2d1b69 100%);
+    border-color: #6366f1;
+    color: #e5e7eb;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+  }
 }
 
 .ai-answer-header {
@@ -18,6 +27,11 @@
   font-size: 2rem;
   width: 2rem;
   height: 2rem;
+  color: #6366f1;
+
+  :host-context(.dark-theme) & {
+    color: #8b5cf6;
+  }
 }
 
 .ai-answer-title {
@@ -25,20 +39,79 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
+  color: #1a1d29;
+
+  :host-context(.dark-theme) & {
+    color: #e5e7eb;
+  }
 }
 
 .confidence-badge {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.75rem;
+  background: #ffffff;
+  color: #1a1d29;
+  padding: 0.375rem 0.875rem;
   border-radius: 12px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &.confidence-high {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+  }
+
+  &.confidence-medium {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+  }
+
+  &.confidence-low {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #ef4444;
+  }
+
+  :host-context(.dark-theme) & {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-color: #374151;
+
+    &.confidence-high {
+      background: #064e3b;
+      color: #6ee7b7;
+      border-color: #10b981;
+    }
+
+    &.confidence-medium {
+      background: #78350f;
+      color: #fcd34d;
+      border-color: #f59e0b;
+    }
+
+    &.confidence-low {
+      background: #7f1d1d;
+      color: #fca5a5;
+      border-color: #ef4444;
+    }
+  }
 }
 
 .ai-answer-content {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 1rem;
+  color: #374151;
+
+  :host-context(.dark-theme) & {
+    color: #d1d5db;
+  }
+
+  p {
+    margin: 0;
+  }
 }
 
 .ai-answer-sources {
@@ -46,7 +119,11 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  opacity: 0.9;
+  color: #6b7280;
+
+  :host-context(.dark-theme) & {
+    color: #9ca3af;
+  }
 }
 
 .sources-label {
@@ -54,7 +131,17 @@
 }
 
 .sources-count {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  background: #ffffff;
+  color: #1a1d29;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  :host-context(.dark-theme) & {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-color: #374151;
+  }
 }

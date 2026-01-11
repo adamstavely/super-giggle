@@ -2,7 +2,10 @@
   <div class="ai-answer-header">
     <mat-icon class="ai-icon" aria-hidden="true">psychology</mat-icon>
     <h3 class="ai-answer-title">AI Answer</h3>
-    <span class="confidence-badge" [style.color]="confidenceColor" 
+    <span class="confidence-badge" 
+          [class.confidence-high]="answer && answer.confidence >= 0.8"
+          [class.confidence-medium]="answer && answer.confidence >= 0.6 && answer.confidence < 0.8"
+          [class.confidence-low]="answer && answer.confidence < 0.6"
           [attr.aria-label]="'Confidence: ' + confidencePercentage + '%'">
       {{ confidencePercentage }}% confidence
     </span>

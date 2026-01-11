@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
 import { SearchService } from '../search.service';
-import { SearchResponse, SearchQuery, SortOption, SearchFilters, ContentType, SearchResult } from '../search.models';
+import { SearchResponse, SearchQuery, SortOption, SearchFilters, ContentType, SearchResult, AIAnswer } from '../search.models';
 import { PrefetchService } from '../../core/services/prefetch.service';
 import { ClientIndexService } from '../../core/services/client-index.service';
 import { CacheService } from '../../core/services/cache.service';
@@ -13,6 +13,7 @@ import { KeyboardShortcutsHelpComponent } from '../keyboard-shortcuts-help/keybo
 import { UndoRedoService } from '../../core/services/undo-redo.service';
 import { ErrorService } from '../../core/services/error.service';
 import { QueryProcessingService } from '../../core/services/query-processing.service';
+import { AIAnswerService } from '../../core/services/ai-answer.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -43,6 +44,9 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
 
   // Featured Results
   featuredResults: SearchResult[] = [];
+
+  // AI Answer
+  aiAnswer: AIAnswer | null = null;
 
   // Keyboard navigation
   selectedResultIndex = -1;
@@ -85,6 +89,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     private undoRedoService: UndoRedoService,
     private errorService: ErrorService,
     private queryProcessing: QueryProcessingService,
+    private aiAnswerService: AIAnswerService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -244,6 +249,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   performSearch(): void {
     if (!this.currentQuery.trim()) {
       this.searchResponse = null;
+      this.aiAnswer = null;
       return;
     }
 
@@ -331,6 +337,9 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
           
           // Fetch curated featured results for the current query
           this.loadCuratedFeaturedResults();
+          
+          // Fetch AI answer for the current query
+          this.loadAIAnswer();
           
           // Prefetch next page if applicable
           this.prefetchNextPage(searchQuery, response);
@@ -576,6 +585,37 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
 
   hasFeaturedResults(): boolean {
     return this.featuredResults.length > 0;
+  }
+
+  /**
+   * Load AI answer for the current search query
+   */
+  private loadAIAnswer(): void {
+    if (!this.currentQuery || !this.currentQuery.trim()) {
+      this.aiAnswer = null;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const query = this.currentQuery.trim();
+    this.aiAnswerService.generateAnswer(query)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (answer) => {
+          // Only update if the query hasn't changed
+          if (this.currentQuery.trim() === query) {
+            this.aiAnswer = answer;
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => {
+          console.error('Error loading AI answer:', err);
+          if (this.currentQuery.trim() === query) {
+            this.aiAnswer = null;
+            this.cdr.markForCheck();
+          }
+        }
+      });
   }
 
   getTabCounts(): { [key in ContentType]: number } {
