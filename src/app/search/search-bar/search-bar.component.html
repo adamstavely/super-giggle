@@ -89,6 +89,28 @@
       </button>
     </div>
 
+    <!-- Operator Hint Banner -->
+    <div
+      *ngIf="showOperatorHint && detectedOperators.operatorHint"
+      class="operator-hint-banner"
+      role="region"
+      aria-label="Advanced operator detection"
+    >
+      <mat-icon class="operator-icon">code</mat-icon>
+      <span class="operator-text">
+        <strong>Advanced operators detected:</strong> {{ detectedOperators.operatorHint }}
+      </span>
+      <button
+        mat-icon-button
+        class="operator-help"
+        (click)="getOperatorSyntaxHelp()"
+        [matTooltip]="getOperatorSyntaxHelp()"
+        aria-label="Show operator syntax help"
+      >
+        <mat-icon>help_outline</mat-icon>
+      </button>
+    </div>
+
     <!-- Autocomplete Dropdown -->
     <div
       *ngIf="showAutocomplete && autocompleteSuggestions.length > 0"

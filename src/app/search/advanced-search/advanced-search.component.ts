@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { SearchFilters } from '../search.models';
+import { QueryProcessingService } from '../../core/services/query-processing.service';
 
 @Component({
   selector: 'app-advanced-search',
@@ -34,9 +36,28 @@ export class AdvancedSearchComponent implements OnInit {
     { value: 'video', label: 'Video' }
   ];
 
+  // Advanced operators
+  showAdvancedOperators = false;
+  proximityDistance = 5;
+  proximityTerms: string[] = ['', ''];
+  wildcardPattern = '';
+  regexPattern = '';
+  fieldBoosts: Array<{ field: string; term: string; boost: number }> = [];
+  availableFields = [
+    { value: 'title', label: 'Title' },
+    { value: 'author', label: 'Author' },
+    { value: 'content', label: 'Content' },
+    { value: 'snippet', label: 'Snippet' },
+    { value: 'source', label: 'Source' }
+  ];
+  validationErrors: string[] = [];
+  validationWarnings: string[] = [];
+
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private queryProcessingService: QueryProcessingService,
+    private dialog: MatDialog
   ) {
     this.advancedSearchForm = this.fb.group({
       // Main query fields
@@ -121,10 +142,43 @@ export class AdvancedSearchComponent implements OnInit {
       queryParts.push(`content:${formValue.contentContains}`);
     }
     
+    // Add advanced operators
+    // Proximity search
+    if (this.proximityTerms[0] && this.proximityTerms[1] && this.proximityDistance > 0) {
+      queryParts.push(`${this.proximityTerms[0]} NEAR/${this.proximityDistance} ${this.proximityTerms[1]}`);
+    }
+    
+    // Wildcards
+    if (this.wildcardPattern) {
+      queryParts.push(this.wildcardPattern);
+    }
+    
+    // Regex
+    if (this.regexPattern) {
+      queryParts.push(`/${this.regexPattern}/`);
+    }
+    
+    // Field boosts
+    this.fieldBoosts.forEach(boost => {
+      queryParts.push(`${boost.field}:${boost.term}^${boost.boost}`);
+    });
+    
     // Combine query parts with boolean operator
     const query = queryParts.length > 0 
       ? queryParts.join(` ${formValue.booleanOperator} `)
       : '';
+    
+    // Validate advanced query
+    if (query) {
+      const validation = this.queryProcessingService.validateAdvancedQuery(query);
+      this.validationErrors = validation.errors;
+      this.validationWarnings = validation.warnings;
+      
+      if (!validation.isValid && validation.errors.length > 0) {
+        // Don't submit if there are errors
+        return;
+      }
+    }
     
     // Build filters
     const filters: SearchFilters = {};
@@ -175,9 +229,70 @@ export class AdvancedSearchComponent implements OnInit {
       fileFormats: [],
       contentTypes: []
     });
+    this.proximityDistance = 5;
+    this.proximityTerms = ['', ''];
+    this.wildcardPattern = '';
+    this.regexPattern = '';
+    this.fieldBoosts = [];
+    this.validationErrors = [];
+    this.validationWarnings = [];
   }
 
   onCancel(): void {
     this.router.navigate(['/search']);
+  }
+
+  toggleAdvancedOperators(): void {
+    this.showAdvancedOperators = !this.showAdvancedOperators;
+  }
+
+  addFieldBoost(): void {
+    this.fieldBoosts.push({ field: 'title', term: '', boost: 2 });
+  }
+
+  removeFieldBoost(index: number): void {
+    this.fieldBoosts.splice(index, 1);
+  }
+
+  validateRegex(): void {
+    if (this.regexPattern) {
+      try {
+        new RegExp(this.regexPattern);
+        // Remove regex from errors if it was there
+        this.validationErrors = this.validationErrors.filter(e => !e.includes('regex'));
+      } catch (error) {
+        if (!this.validationErrors.some(e => e.includes('regex'))) {
+          this.validationErrors.push(`Invalid regex: ${(error as Error).message}`);
+        }
+      }
+    }
+  }
+
+  showOperatorHelp(): void {
+    // For now, just log - in production, show a dialog
+    const helpText = `Advanced Operators Help:
+
+• Proximity Search:
+  - Format: word1 NEAR/5 word2 or "phrase"~5
+  - Finds words within N words of each other
+  - Example: employee NEAR/5 benefits
+
+• Wildcards:
+  - * matches multiple characters (test* matches test, testing, tested)
+  - ? matches single character (te?t matches test, text, tent)
+  - Example: test* or te?t
+
+• Regular Expression:
+  - Format: /pattern/
+  - Uses JavaScript regex syntax
+  - Example: /^employee.*benefits$/
+
+• Field Boosting:
+  - Format: field:term^boost
+  - Supported fields: title, author, content, snippet, source
+  - Boost value: 0.1 to 10
+  - Example: title:handbook^2`;
+    
+    alert(helpText); // In production, use MatDialog
   }
 }

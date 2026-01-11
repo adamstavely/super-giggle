@@ -39,6 +39,22 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   useExpandedQuery = false;
   showExpansionToggle = false;
   
+  // Advanced operators detection
+  detectedOperators: {
+    hasProximity: boolean;
+    hasWildcards: boolean;
+    hasRegex: boolean;
+    hasFieldBoosts: boolean;
+    operatorHint: string | null;
+  } = {
+    hasProximity: false,
+    hasWildcards: false,
+    hasRegex: false,
+    hasFieldBoosts: false,
+    operatorHint: null
+  };
+  showOperatorHint = false;
+  
   private querySubject = new Subject<string>();
   private destroy$ = new Subject<void>();
 
@@ -52,7 +68,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       this.searchControl.setValue(this.initialQuery);
     }
 
-    // Subscribe to query changes for autocomplete, spell correction, and query expansion
+    // Subscribe to query changes for autocomplete, spell correction, query expansion, and operator detection
     this.querySubject.pipe(
       debounceTime(200),
       distinctUntilChanged(),
@@ -62,6 +78,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
         this.loadAutocompleteSuggestions(query);
         this.checkSpelling(query);
         this.checkQueryExpansion(query);
+        this.detectAdvancedOperators(query);
       } else {
         this.autocompleteSuggestions = [];
         this.showAutocomplete = false;
@@ -69,6 +86,14 @@ export class SearchBarComponent implements OnInit, OnDestroy {
         this.showSpellCorrection = false;
         this.queryExpansion = null;
         this.showExpansionToggle = false;
+        this.detectedOperators = {
+          hasProximity: false,
+          hasWildcards: false,
+          hasRegex: false,
+          hasFieldBoosts: false,
+          operatorHint: null
+        };
+        this.showOperatorHint = false;
       }
     });
 
@@ -304,5 +329,70 @@ export class SearchBarComponent implements OnInit, OnDestroy {
    */
   isMisspelled(word: string): boolean {
     return this.getMisspelledWords().includes(word);
+  }
+
+  /**
+   * Detect advanced operators in query
+   */
+  private detectAdvancedOperators(query: string): void {
+    const parsed = this.queryProcessingService.parseAdvancedOperators(query);
+    
+    this.detectedOperators = {
+      hasProximity: !!parsed.proximity,
+      hasWildcards: parsed.wildcards.length > 0,
+      hasRegex: !!parsed.regex,
+      hasFieldBoosts: parsed.fieldBoosts.length > 0,
+      operatorHint: this.generateOperatorHint(parsed)
+    };
+    
+    this.showOperatorHint = 
+      this.detectedOperators.hasProximity ||
+      this.detectedOperators.hasWildcards ||
+      this.detectedOperators.hasRegex ||
+      this.detectedOperators.hasFieldBoosts;
+  }
+
+  /**
+   * Generate operator hint text
+   */
+  private generateOperatorHint(parsed: any): string | null {
+    const hints: string[] = [];
+    
+    if (parsed.proximity) {
+      hints.push(`Proximity: ${parsed.proximity.terms.join(' and ')} within ${parsed.proximity.distance} words`);
+    }
+    
+    if (parsed.wildcards.length > 0) {
+      hints.push(`Wildcards: ${parsed.wildcards.join(', ')}`);
+    }
+    
+    if (parsed.regex) {
+      hints.push(`Regex: /${parsed.regex}/`);
+    }
+    
+    if (parsed.fieldBoosts.length > 0) {
+      const boosts = parsed.fieldBoosts.map((b: any) => `${b.field}:${b.term}^${b.boost}`).join(', ');
+      hints.push(`Field boosts: ${boosts}`);
+    }
+    
+    return hints.length > 0 ? hints.join(' | ') : null;
+  }
+
+  /**
+   * Get operator syntax help
+   */
+  getOperatorSyntaxHelp(): string {
+    return `Advanced Search Operators:
+• Proximity: word1 NEAR/5 word2 or "phrase"~5
+• Wildcards: test* (multiple) or te?t (single)
+• Regex: /pattern/
+• Field Boost: title:term^2`;
+  }
+
+  /**
+   * Check if query contains advanced operators
+   */
+  hasAdvancedOperators(): boolean {
+    return this.showOperatorHint;
   }
 }

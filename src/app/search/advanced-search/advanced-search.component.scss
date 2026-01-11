@@ -63,6 +63,137 @@
   }
 }
 
+// Advanced Operators Styles
+.operator-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  .operator-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1a1d29;
+
+    mat-icon {
+      color: #3b4b7d;
+    }
+  }
+
+  .operator-description {
+    margin: 0 0 16px 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  .operator-example {
+    margin-top: 12px;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 6px;
+    border-left: 3px solid #3b4b7d;
+    font-size: 0.85rem;
+    color: #4b5563;
+
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #1f2937;
+    }
+  }
+}
+
+.proximity-inputs {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+
+  .proximity-field {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .proximity-distance {
+    width: 120px;
+  }
+}
+
+.field-boost-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+
+  .boost-field {
+    width: 150px;
+  }
+
+  .boost-term {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .boost-value {
+    width: 100px;
+  }
+}
+
+.validation-errors {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  margin-top: 16px;
+  color: #991b1b;
+
+  mat-icon {
+    color: #dc2626;
+    flex-shrink: 0;
+  }
+
+  ul {
+    margin: 4px 0 0 0;
+    padding-left: 20px;
+  }
+}
+
+.validation-warnings {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  margin-top: 16px;
+  color: #92400e;
+
+  mat-icon {
+    color: #f59e0b;
+    flex-shrink: 0;
+  }
+
+  ul {
+    margin: 4px 0 0 0;
+    padding-left: 20px;
+  }
+}
+
+.help-button {
+  margin-top: 16px;
+  width: 100%;
+}
+
 @media (max-width: 768px) {
   .advanced-search-container {
     padding: 16px 8px;
