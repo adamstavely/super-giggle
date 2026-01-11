@@ -1,5 +1,5 @@
 <app-search-header></app-search-header>
-<div class="search-results-container">
+<div class="search-results-container" #resultsContainer role="main" aria-label="Search results">
   <!-- Search Bar with Controls -->
   <div class="search-bar-wrapper" *ngIf="searchResponse && !loading && !error">
     <div class="search-bar-row">

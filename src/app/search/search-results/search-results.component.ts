@@ -1,16 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
 import { SearchService } from '../search.service';
 import { SearchResponse, SearchQuery, SortOption, SearchFilters, ContentType, SearchResult } from '../search.models';
+import { MobileGesturesService } from '../../core/services/mobile-gestures.service';
 
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss']
 })
-export class SearchResultsComponent implements OnInit, OnDestroy {
+export class SearchResultsComponent implements OnInit, OnDestroy, AfterViewInit {
   searchResponse: SearchResponse | null = null;
   loading = false;
   error: string | null = null;
@@ -27,6 +28,8 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   // Quick View Panel
   quickViewResult: SearchResult | null = null;
   quickViewOpen = false;
+
+  @ViewChild('resultsContainer', { static: false }) resultsContainer!: ElementRef<HTMLElement>;
 
   // Cache sort and page size options to avoid creating new arrays on every change detection
   readonly sortOptions: { value: SortOption; label: string }[] = [
@@ -46,7 +49,8 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private mobileGestures: MobileGesturesService
   ) {}
 
   ngOnInit(): void {
@@ -98,9 +102,36 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
       });
   }
 
+  ngAfterViewInit(): void {
+    // Setup pull-to-refresh for mobile
+    if (this.resultsContainer) {
+      this.mobileGestures.setupPullToRefresh(
+        this.resultsContainer.nativeElement,
+        () => this.refreshSearch()
+      );
+    }
+
+    // Subscribe to swipe gestures
+    this.mobileGestures.swipe$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(swipe => {
+        if (swipe.direction === 'left' && this.currentPage < this.getTotalPages()) {
+          this.onPageChange(this.currentPage + 1);
+        } else if (swipe.direction === 'right' && this.currentPage > 1) {
+          this.onPageChange(this.currentPage - 1);
+        }
+      });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  refreshSearch(): void {
+    if (this.currentQuery) {
+      this.performSearch();
+    }
   }
 
   onSearch(query: string): void {
@@ -373,6 +404,14 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     const grouped = this.getGroupedResults();
     const group = grouped.find(g => g.source === source);
     return group ? group.results.length : 0;
+  }
+
+  getTotalPages(): number {
+    if (!this.searchResponse || !this.searchResponse.totalCount) {
+      return 1;
+    }
+    // Use totalPages if available, otherwise calculate
+    return this.searchResponse.totalPages || Math.ceil(this.searchResponse.totalCount / this.pageSize);
   }
 
   onOpenQuickView(result: SearchResult): void {
