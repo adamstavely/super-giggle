@@ -87,145 +87,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Advanced Operators Card -->
-    <mat-card class="search-card">
-      <mat-card-header>
-        <mat-card-title>Advanced Operators</mat-card-title>
-        <mat-card-subtitle>Use proximity, wildcards, regex, and field boosting</mat-card-subtitle>
-        <button mat-icon-button (click)="toggleAdvancedOperators()" [attr.aria-expanded]="showAdvancedOperators" aria-label="Toggle advanced operators">
-          <mat-icon>{{ showAdvancedOperators ? 'expand_less' : 'expand_more' }}</mat-icon>
-        </button>
-      </mat-card-header>
-      <mat-card-content *ngIf="showAdvancedOperators">
-        <!-- Proximity Search -->
-        <div class="operator-section">
-          <h3 class="operator-title">
-            <mat-icon>near_me</mat-icon>
-            Proximity Search
-          </h3>
-          <p class="operator-description">Find words within N words of each other</p>
-          <div class="proximity-inputs">
-            <mat-form-field appearance="outline" class="proximity-field">
-              <mat-label>First Term</mat-label>
-              <input matInput [(ngModel)]="proximityTerms[0]" [ngModelOptions]="{standalone: true}" placeholder="e.g., employee">
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="proximity-distance">
-              <mat-label>Distance</mat-label>
-              <input matInput type="number" [(ngModel)]="proximityDistance" [ngModelOptions]="{standalone: true}" min="1" max="100" placeholder="5">
-              <mat-hint>Words apart (1-100)</mat-hint>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="proximity-field">
-              <mat-label>Second Term</mat-label>
-              <input matInput [(ngModel)]="proximityTerms[1]" [ngModelOptions]="{standalone: true}" placeholder="e.g., benefits">
-            </mat-form-field>
-          </div>
-          <div class="operator-example">
-            <strong>Example:</strong> <code>employee NEAR/5 benefits</code> finds documents where "employee" and "benefits" are within 5 words of each other
-          </div>
-        </div>
-
-        <!-- Wildcards -->
-        <div class="operator-section">
-          <h3 class="operator-title">
-            <mat-icon>star</mat-icon>
-            Wildcard Patterns
-          </h3>
-          <p class="operator-description">Use * for multiple characters, ? for single character</p>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Wildcard Pattern</mat-label>
-            <input matInput [(ngModel)]="wildcardPattern" [ngModelOptions]="{standalone: true}" placeholder="e.g., test* or te?t">
-            <mat-hint>* matches multiple chars, ? matches single char</mat-hint>
-          </mat-form-field>
-          <div class="operator-example">
-            <strong>Examples:</strong> 
-            <code>test*</code> matches test, testing, tested
-            <br>
-            <code>te?t</code> matches test, text, tent
-          </div>
-        </div>
-
-        <!-- Regex -->
-        <div class="operator-section">
-          <h3 class="operator-title">
-            <mat-icon>code</mat-icon>
-            Regular Expression
-          </h3>
-          <p class="operator-description">Use regex patterns for advanced matching</p>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Regex Pattern</mat-label>
-            <input matInput [(ngModel)]="regexPattern" [ngModelOptions]="{standalone: true}" (blur)="validateRegex()" placeholder="e.g., ^employee.*benefits$">
-            <mat-hint>Pattern without slashes (e.g., ^employee.*benefits$)</mat-hint>
-          </mat-form-field>
-          <div class="operator-example">
-            <strong>Example:</strong> <code>/^employee.*benefits$/</code> matches text starting with "employee" and ending with "benefits"
-          </div>
-        </div>
-
-        <!-- Field Boosting -->
-        <div class="operator-section">
-          <h3 class="operator-title">
-            <mat-icon>trending_up</mat-icon>
-            Field Boosting
-          </h3>
-          <p class="operator-description">Boost relevance of matches in specific fields</p>
-          <div *ngFor="let boost of fieldBoosts; let i = index" class="field-boost-row">
-            <mat-form-field appearance="outline" class="boost-field">
-              <mat-label>Field</mat-label>
-              <mat-select [(ngModel)]="boost.field" [ngModelOptions]="{standalone: true}">
-                <mat-option *ngFor="let field of availableFields" [value]="field.value">
-                  {{ field.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="boost-term">
-              <mat-label>Term</mat-label>
-              <input matInput [(ngModel)]="boost.term" [ngModelOptions]="{standalone: true}" placeholder="e.g., handbook">
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="boost-value">
-              <mat-label>Boost</mat-label>
-              <input matInput type="number" [(ngModel)]="boost.boost" [ngModelOptions]="{standalone: true}" min="0.1" max="10" step="0.1" placeholder="2.0">
-            </mat-form-field>
-            <button mat-icon-button (click)="removeFieldBoost(i)" aria-label="Remove field boost">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-          <button mat-button type="button" (click)="addFieldBoost()">
-            <mat-icon>add</mat-icon>
-            Add Field Boost
-          </button>
-          <div class="operator-example">
-            <strong>Example:</strong> <code>title:handbook^2</code> boosts documents with "handbook" in the title by 2x
-          </div>
-        </div>
-
-        <!-- Validation Messages -->
-        <div *ngIf="validationErrors.length > 0" class="validation-errors">
-          <mat-icon>error</mat-icon>
-          <div>
-            <strong>Errors:</strong>
-            <ul>
-              <li *ngFor="let error of validationErrors">{{ error }}</li>
-            </ul>
-          </div>
-        </div>
-        <div *ngIf="validationWarnings.length > 0" class="validation-warnings">
-          <mat-icon>warning</mat-icon>
-          <div>
-            <strong>Warnings:</strong>
-            <ul>
-              <li *ngFor="let warning of validationWarnings">{{ warning }}</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Help Button -->
-        <button mat-button type="button" (click)="showOperatorHelp()" class="help-button">
-          <mat-icon>help_outline</mat-icon>
-          Show Operator Help
-        </button>
-      </mat-card-content>
-    </mat-card>
-
     <mat-card class="search-card">
       <mat-card-header>
         <mat-card-title>Filters</mat-card-title>
@@ -252,6 +113,17 @@
             </mat-option>
           </mat-select>
           <mat-hint>Select one or more content types</mat-hint>
+        </mat-form-field>
+
+        <!-- Source Systems -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sources</mat-label>
+          <mat-select formControlName="sourceSystems" multiple>
+            <mat-option *ngFor="let source of sourceSystems" [value]="source.value">
+              {{ source.label }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Select one or more sources</mat-hint>
         </mat-form-field>
 
         <!-- Date Range -->

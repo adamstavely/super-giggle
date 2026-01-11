@@ -39,20 +39,13 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
     { value: 'video', label: 'Video' }
   ];
 
-  // Advanced operators
-  showAdvancedOperators = false;
-  proximityDistance = 5;
-  proximityTerms: string[] = ['', ''];
-  wildcardPattern = '';
-  regexPattern = '';
-  fieldBoosts: Array<{ field: string; term: string; boost: number }> = [];
-  availableFields = [
-    { value: 'title', label: 'Title' },
-    { value: 'author', label: 'Author' },
-    { value: 'content', label: 'Content' },
-    { value: 'snippet', label: 'Snippet' },
-    { value: 'source', label: 'Source' }
+  sourceSystems = [
+    { value: 'sharepoint', label: 'SharePoint' },
+    { value: 'onedrive', label: 'OneDrive' },
+    { value: 'fileserver', label: 'File Server' },
+    { value: 'wiki', label: 'Wiki' }
   ];
+
   validationErrors: string[] = [];
   validationWarnings: string[] = [];
 
@@ -78,6 +71,7 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
       // Filters
       fileFormats: [[]],
       contentTypes: [[]],
+      sourceSystems: [[]],
       dateFrom: [null],
       dateTo: [null],
       
@@ -147,27 +141,6 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
       queryParts.push(`content:${formValue.contentContains}`);
     }
     
-    // Add advanced operators
-    // Proximity search
-    if (this.proximityTerms[0] && this.proximityTerms[1] && this.proximityDistance > 0) {
-      queryParts.push(`${this.proximityTerms[0]} NEAR/${this.proximityDistance} ${this.proximityTerms[1]}`);
-    }
-    
-    // Wildcards
-    if (this.wildcardPattern) {
-      queryParts.push(this.wildcardPattern);
-    }
-    
-    // Regex
-    if (this.regexPattern) {
-      queryParts.push(`/${this.regexPattern}/`);
-    }
-    
-    // Field boosts
-    this.fieldBoosts.forEach(boost => {
-      queryParts.push(`${boost.field}:${boost.term}^${boost.boost}`);
-    });
-    
     // Combine query parts with boolean operator
     const query = queryParts.length > 0 
       ? queryParts.join(` ${formValue.booleanOperator} `)
@@ -196,6 +169,10 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
       filters.contentTypes = formValue.contentTypes;
     }
     
+    if (formValue.sourceSystems && formValue.sourceSystems.length > 0) {
+      filters.sourceSystems = formValue.sourceSystems;
+    }
+    
     if (formValue.dateFrom) {
       filters.dateFrom = formValue.dateFrom;
     }
@@ -213,13 +190,9 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
     this.advancedSearchForm.reset({
       booleanOperator: 'AND',
       fileFormats: [],
-      contentTypes: []
+      contentTypes: [],
+      sourceSystems: []
     });
-    this.proximityDistance = 5;
-    this.proximityTerms = ['', ''];
-    this.wildcardPattern = '';
-    this.regexPattern = '';
-    this.fieldBoosts = [];
     this.validationErrors = [];
     this.validationWarnings = [];
   }
@@ -241,59 +214,5 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Cleanup if needed
-  }
-
-  toggleAdvancedOperators(): void {
-    this.showAdvancedOperators = !this.showAdvancedOperators;
-  }
-
-  addFieldBoost(): void {
-    this.fieldBoosts.push({ field: 'title', term: '', boost: 2 });
-  }
-
-  removeFieldBoost(index: number): void {
-    this.fieldBoosts.splice(index, 1);
-  }
-
-  validateRegex(): void {
-    if (this.regexPattern) {
-      try {
-        new RegExp(this.regexPattern);
-        // Remove regex from errors if it was there
-        this.validationErrors = this.validationErrors.filter(e => !e.includes('regex'));
-      } catch (error) {
-        if (!this.validationErrors.some(e => e.includes('regex'))) {
-          this.validationErrors.push(`Invalid regex: ${(error as Error).message}`);
-        }
-      }
-    }
-  }
-
-  showOperatorHelp(): void {
-    // For now, just log - in production, show a dialog
-    const helpText = `Advanced Operators Help:
-
-• Proximity Search:
-  - Format: word1 NEAR/5 word2 or "phrase"~5
-  - Finds words within N words of each other
-  - Example: employee NEAR/5 benefits
-
-• Wildcards:
-  - * matches multiple characters (test* matches test, testing, tested)
-  - ? matches single character (te?t matches test, text, tent)
-  - Example: test* or te?t
-
-• Regular Expression:
-  - Format: /pattern/
-  - Uses JavaScript regex syntax
-  - Example: /^employee.*benefits$/
-
-• Field Boosting:
-  - Format: field:term^boost
-  - Supported fields: title, author, content, snippet, source
-  - Boost value: 0.1 to 10
-  - Example: title:handbook^2`;
-    
-    alert(helpText); // In production, use MatDialog
   }
 }
