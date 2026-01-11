@@ -30,7 +30,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   currentSort: SortOption = 'relevance';
   currentPage = 1;
   pageSize = 25;
-  showFilters = false;
+  showFilters = true; // Show filters by default on desktop
   selectedTab: ContentType = 'all';
   selectedTabIndex = 0;
   groupBySource = false;

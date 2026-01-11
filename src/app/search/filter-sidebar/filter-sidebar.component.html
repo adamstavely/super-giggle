@@ -2,13 +2,15 @@
   <div class="filter-header">
     <h3>Filters</h3>
     <button
-      *ngIf="hasActiveFilters()"
       mat-button
       class="clear-all-button"
       (click)="clearAllFilters()"
+      [disabled]="!hasActiveFilters()"
       aria-label="Clear all filters"
     >
-      Clear all ({{ getActiveFiltersCount() }})
+      <mat-icon>clear_all</mat-icon>
+      <span>Clear all</span>
+      <span *ngIf="hasActiveFilters()"> ({{ getActiveFiltersCount() }})</span>
     </button>
   </div>
 
@@ -85,6 +87,25 @@
       </div>
     </div>
 
+    <!-- Date Range Filter -->
+    <div class="filter-section">
+      <h4>Date Range</h4>
+      <div class="date-range-filters">
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>From</mat-label>
+          <input matInput [matDatepicker]="fromPicker" [formControl]="dateFromControl">
+          <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>To</mat-label>
+          <input matInput [matDatepicker]="toPicker" [formControl]="dateToControl">
+          <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
     <!-- Content Type Filter -->
     <div class="filter-section">
       <h4>Content Type</h4>
@@ -153,25 +174,6 @@
           <span class="filter-count">({{ option.count }})</span>
         </mat-list-option>
       </mat-selection-list>
-    </div>
-
-    <!-- Date Range Filter -->
-    <div class="filter-section">
-      <h4>Date Range</h4>
-      <div class="date-range-filters">
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>From</mat-label>
-          <input matInput [matDatepicker]="fromPicker" [formControl]="dateFromControl">
-          <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-          <mat-datepicker #fromPicker></mat-datepicker>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>To</mat-label>
-          <input matInput [matDatepicker]="toPicker" [formControl]="dateToControl">
-          <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-          <mat-datepicker #toPicker></mat-datepicker>
-        </mat-form-field>
-      </div>
     </div>
   </div>
 </aside>

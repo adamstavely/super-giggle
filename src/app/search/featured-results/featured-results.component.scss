@@ -38,7 +38,7 @@
 
   .featured-header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
     padding-bottom: 12px;
@@ -46,6 +46,18 @@
 
     :host-context(.dark-theme) & {
       border-bottom-color: rgba(89, 102, 145, 0.3);
+    }
+
+    .featured-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #3b4b7d;
+      letter-spacing: -0.01em;
+
+      :host-context(.dark-theme) & {
+        color: #8a9eff;
+      }
     }
 
     .recommend-button {

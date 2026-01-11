@@ -32,18 +32,6 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-
-        <!-- Filter Toggle (Mobile) -->
-        <button
-          mat-icon-button
-          class="filter-toggle"
-          (click)="toggleFilters()"
-          [attr.aria-expanded]="showFilters"
-          [attr.aria-controls]="'filter-sidebar'"
-          aria-label="Toggle filters sidebar"
-        >
-          <mat-icon>filter_list</mat-icon>
-        </button>
       </div>
     </div>
     <div class="search-info-row">
@@ -111,9 +99,7 @@
       <!-- Filter Sidebar -->
       <aside 
         class="filter-sidebar-wrapper" 
-        [class.hidden]="!showFilters" 
         [attr.aria-label]="'Search filters'"
-        [attr.aria-expanded]="showFilters"
         id="filter-sidebar"
       >
         <app-filter-sidebar

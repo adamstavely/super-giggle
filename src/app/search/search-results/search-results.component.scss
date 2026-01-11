@@ -80,26 +80,6 @@
           }
         }
 
-        .filter-toggle {
-          display: none;
-          background-color: #f9fafb;
-          border: 1px solid #e5e7eb;
-          color: #1a1d29;
-
-          :host-context(.dark-theme) & {
-            background-color: #1a1d29;
-            border-color: #374151;
-            color: #e5e7eb;
-          }
-
-          &:hover {
-            background-color: #f3f4f6;
-
-            :host-context(.dark-theme) & {
-              background-color: #374151;
-            }
-          }
-        }
       }
     }
 
@@ -320,9 +300,12 @@
       align-items: flex-start;
 
       .filter-sidebar-wrapper {
-        width: 300px;
+        width: 260px;
         flex-shrink: 0;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: sticky;
+        top: 20px;
+        align-self: flex-start;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &.hidden {
           display: none;
@@ -638,6 +621,59 @@
           }
         }
 
+        .results-header-actions {
+          margin-bottom: 16px;
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          align-items: center;
+
+          .filter-toggle-desktop {
+            font-size: 13px;
+            color: #6b7280;
+
+            :host-context(.dark-theme) & {
+              color: #9ca3af;
+            }
+
+            &:hover {
+              background-color: rgba(59, 75, 125, 0.08);
+              color: #3b4b7d;
+
+              :host-context(.dark-theme) & {
+                background-color: rgba(138, 158, 255, 0.1);
+                color: #8a9eff;
+              }
+            }
+
+            mat-icon {
+              margin-right: 4px;
+            }
+          }
+
+          button {
+            font-size: 13px;
+            color: #6b7280;
+
+            :host-context(.dark-theme) & {
+              color: #9ca3af;
+            }
+
+            &.active {
+              background: #3b4b7d;
+              color: #ffffff;
+
+              :host-context(.dark-theme) & {
+                background: #596691;
+              }
+            }
+
+            mat-icon {
+              margin-right: 4px;
+            }
+          }
+        }
+
         .group-by-source-toggle {
           margin-bottom: 16px;
           display: flex;
@@ -649,6 +685,16 @@
 
             :host-context(.dark-theme) & {
               color: #9ca3af;
+            }
+
+            &:hover {
+              background-color: rgba(59, 75, 125, 0.08);
+              color: #3b4b7d;
+
+              :host-context(.dark-theme) & {
+                background-color: rgba(138, 158, 255, 0.1);
+                color: #8a9eff;
+              }
             }
 
             &.active {
@@ -797,10 +843,6 @@
             flex: 1;
             min-width: 0;
           }
-
-          .filter-toggle {
-            display: block;
-          }
         }
       }
 
@@ -832,6 +874,10 @@
 
           :host-context(.dark-theme) & {
             background: #1a1d29;
+          }
+
+          &.hidden {
+            transform: translateX(-100%);
           }
 
           &:not(.hidden) {
