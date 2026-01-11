@@ -33,6 +33,7 @@
       .search-bar-container {
         flex: 1;
         min-width: 0;
+        max-width: calc(100% - 360px); // Reserve space for sort and page size controls
       }
 
       .search-controls-inline {
@@ -41,7 +42,10 @@
         gap: 8px;
         flex-shrink: 0;
 
-        .sort-select,
+        .sort-select {
+          width: 170px; // Increased to show full "Date (Newest)" text
+        }
+
         .page-size-select {
           width: 130px;
 
