@@ -1,0 +1,42 @@
+<div class="featured-results-container" *ngIf="results && results.length > 0">
+  <div class="featured-header">
+    <mat-icon class="featured-icon">star</mat-icon>
+    <h3 class="featured-title">Featured Results</h3>
+  </div>
+  <div class="featured-results-list">
+    <div class="featured-result-item" *ngFor="let result of results">
+      <div class="featured-result-content">
+        <div class="featured-result-header">
+          <div class="featured-result-title-section">
+            <mat-icon class="file-type-icon" [title]="result.fileType">
+              {{ getFileTypeIcon(result.fileType) }}
+            </mat-icon>
+            <a [href]="result.url" class="featured-result-title" [attr.aria-label]="'Open ' + result.title">
+              {{ result.title }}
+            </a>
+          </div>
+          <div *ngIf="result.thumbnail" class="featured-result-thumbnail">
+            <img [src]="result.thumbnail" [alt]="result.title" />
+          </div>
+        </div>
+
+        <div class="featured-result-snippet">{{ result.snippet }}</div>
+
+        <div class="featured-result-metadata">
+          <div class="metadata-item" *ngIf="result.source">
+            <mat-icon class="metadata-icon">folder</mat-icon>
+            <span class="metadata-text">{{ result.source }}</span>
+          </div>
+          <div class="metadata-item" *ngIf="result.author">
+            <mat-icon class="metadata-icon">person</mat-icon>
+            <span class="metadata-text">{{ result.author }}</span>
+          </div>
+          <div class="metadata-item" *ngIf="result.lastModified">
+            <mat-icon class="metadata-icon">schedule</mat-icon>
+            <span class="metadata-text">{{ (result.lastModified | date:'MMM d, y') || '' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

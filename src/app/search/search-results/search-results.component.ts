@@ -277,6 +277,15 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     });
   }
 
+  getFeaturedResults(): SearchResult[] {
+    return this.searchResponse?.featuredResults || [];
+  }
+
+  hasFeaturedResults(): boolean {
+    const featured = this.getFeaturedResults();
+    return featured.length > 0;
+  }
+
   getTabCounts(): { [key in ContentType]: number } {
     if (!this.searchResponse || !this.searchResponse.results) {
       return { all: 0, news: 0, video: 0, images: 0, sites: 0 };

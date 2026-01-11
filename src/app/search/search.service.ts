@@ -545,8 +545,49 @@ export class SearchService {
     const maxResults = 25;
     const limitedResults = paginatedResults.slice(0, maxResults);
 
+    // Generate featured results (only on first page)
+    const featuredResults: SearchResult[] = page === 1 ? [
+      {
+        id: 'featured-1',
+        title: 'Employee Benefits Portal - Quick Access',
+        snippet: 'Access your health insurance, dental, vision, and retirement benefits all in one place. Update your selections, view coverage details, and find answers to common questions.',
+        source: 'Benefits Portal',
+        author: 'Benefits Team',
+        lastModified: new Date('2024-03-10'),
+        fileType: 'HTML',
+        url: '/benefits/portal',
+        breadcrumb: ['Benefits', 'Portal'],
+        highlightedTerms: ['benefits', 'portal']
+      },
+      {
+        id: 'featured-2',
+        title: 'IT Help Desk - Get Support Now',
+        snippet: 'Need technical assistance? Submit a ticket, chat with support, or browse our knowledge base. Average response time: 15 minutes during business hours.',
+        source: 'IT Services',
+        author: 'IT Department',
+        lastModified: new Date('2024-03-12'),
+        fileType: 'HTML',
+        url: '/it/helpdesk',
+        breadcrumb: ['IT', 'Support'],
+        highlightedTerms: ['IT', 'support', 'help']
+      },
+      {
+        id: 'featured-3',
+        title: 'Company Directory - Find Colleagues',
+        snippet: 'Search for employees by name, department, or location. View contact information, office locations, and organizational structure. Updated daily.',
+        source: 'HR System',
+        author: 'HR Department',
+        lastModified: new Date('2024-03-15'),
+        fileType: 'HTML',
+        url: '/directory',
+        breadcrumb: ['Company', 'Directory'],
+        highlightedTerms: ['directory', 'employees', 'colleagues']
+      }
+    ] : [];
+
     return {
       results: limitedResults,
+      featuredResults: featuredResults,
       totalCount: totalCount,
       searchTime: Math.random() * 100 + 50, // Random time between 50-150ms
       query: query.query,

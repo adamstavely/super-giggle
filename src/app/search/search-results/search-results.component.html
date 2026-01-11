@@ -150,6 +150,13 @@
           </ul>
         </div>
 
+        <!-- Featured Results -->
+        <app-featured-results
+          *ngIf="hasFeaturedResults() && selectedTab === 'all'"
+          [results]="getFeaturedResults()"
+          [searchQuery]="currentQuery"
+        ></app-featured-results>
+
         <!-- Results -->
         <div *ngIf="getFilteredResults().length > 0">
           <app-result-item

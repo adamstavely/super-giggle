@@ -33,6 +33,7 @@ import { FilterSidebarComponent } from './filter-sidebar/filter-sidebar.componen
 import { ResultItemComponent } from './result-item/result-item.component';
 import { AdvancedSearchComponent } from './advanced-search/advanced-search.component';
 import { HeaderComponent } from './header/header.component';
+import { FeaturedResultsComponent } from './featured-results/featured-results.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { HeaderComponent } from './header/header.component';
     FilterSidebarComponent,
     ResultItemComponent,
     AdvancedSearchComponent,
-    HeaderComponent
+    HeaderComponent,
+    FeaturedResultsComponent
   ],
   imports: [
     CommonModule,

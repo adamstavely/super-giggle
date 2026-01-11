@@ -17,6 +17,7 @@ export interface SearchResult {
 
 export interface SearchResponse {
   results: SearchResult[];
+  featuredResults?: SearchResult[];
   totalCount: number;
   searchTime: number;
   query: string;
